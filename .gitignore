@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Development documentation (not needed for end users)
+DEVELOPMENT.md
+ARCHITECTURE.md
+CODE_COMMENTS.md
+QUICK_START.md
