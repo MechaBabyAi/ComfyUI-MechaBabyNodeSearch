@@ -11,6 +11,8 @@ Enhance ComfyUI workflow by providing powerful node search, attribute search, an
 - 🔗 **Port Teleport**: Right-click on node ports to jump directly to connected nodes
 - ⌨️ **Keyboard Shortcuts**: Press `Ctrl+F` to quickly open the search dialog
 - 🎯 **Smart Matching**: Supports searching node titles, types, widget names, widget values, property names, and property values
+- ✨ **Golden Flash Highlight**: Target node flashes with golden color after jumping for better visibility
+- 🔄 **Easy Use Support**: Supports jumping between `easy getNode` and `easy setNode` nodes (comfyui-easy-use extension)
 
 ## Installation
 
@@ -65,6 +67,13 @@ Enter keywords in the search box to search for:
 MIT License
 
 ## Changelog
+
+### v1.2.0 (2025-01-07)
+- Added golden flash highlight effect when jumping to nodes
+- Added support for `easy getNode` and `easy setNode` jumping (comfyui-easy-use extension)
+- Migrated to new ComfyUI Context Menu API
+- Auto-focus on search input when opening dialog
+- Code optimization and bug fixes
 
 ### v1.0.0 (2025-01-05)
 - Initial release

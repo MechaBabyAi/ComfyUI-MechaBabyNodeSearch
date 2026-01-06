@@ -5,21 +5,30 @@
  * 1. 节点右键菜单传送 - 在节点上右键，选择"传送到连接节点"
  * 2. 端口右键传送 - 直接在端口上右键（如果已连接），自动跳转
  * 3. 多连接处理 - 如果一个端口连接多个节点，显示选择菜单
+ * 4. Easy Use 节点支持 - 支持 easy getNode 和 easy setNode 之间的跳转
+ *    - getNode 可以跳转到对应的 setNode（通过 Constant 值匹配）
+ *    - setNode 可以跳转到所有匹配的 getNode（可能有多个）
  * 
  * 技术实现：
  * - 重写 LGraphCanvas.prototype.getNodeMenuOptions 添加右键菜单
  * - 重写 LGraphCanvas.prototype.onMouseDown 监听端口右键
- * - 通过 app.graph.links 获取连接信息
+ * - 通过 app.graph.links 获取连接信息（普通节点）
+ * - 通过 node.findSetter() 和 node.findGetters() 获取关联节点（easy use 节点）
  * - 使用 app.canvas.centerOnNode() 实现跳转
  * 
  * 连接数据结构：
- * - 输入端口：node.inputs[index].link -> link_id -> app.graph.links[link_id]
- * - 输出端口：node.outputs[index].links -> [link_id, ...] -> app.graph.links[link_id]
- * - link.origin_id: 源节点ID, link.target_id: 目标节点ID
+ * - 普通节点连接：
+ *   - 输入端口：node.inputs[index].link -> link_id -> app.graph.links[link_id]
+ *   - 输出端口：node.outputs[index].links -> [link_id, ...] -> app.graph.links[link_id]
+ *   - link.origin_id: 源节点ID, link.target_id: 目标节点ID
+ * - Easy Use 节点连接：
+ *   - getNode: 通过 node.findSetter(graph) 查找匹配的 setNode
+ *   - setNode: 通过 node.findGetters(graph) 查找所有匹配的 getNode
+ *   - 匹配依据：widgets[0].value (Constant 值)
  * 
  * @file portTeleport.js
  * @author MechaBaby
- * @version 1.0.0
+ * @version 1.2.0
  */
 
 import { app } from "../../../scripts/app.js";
@@ -82,7 +91,7 @@ app.registerExtension({
         }
 
         /**
-         * 跳转到节点
+         * 跳转到节点并高亮闪烁
          */
         function jumpToNode(node) {
             if (!node) return;
@@ -90,16 +99,111 @@ app.registerExtension({
             // 跳转到节点
             app.canvas.centerOnNode(node);
             
-            // 选中节点（高亮显示）
+            // 选中节点
             app.canvas.selectNode(node);
             
-            // 滚动到节点位置
-            setTimeout(() => {
-                const nodeElement = document.querySelector(`[data-node-id="${node.id}"]`);
-                if (nodeElement) {
-                    nodeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // 添加金黄色闪烁高亮效果
+            highlightNode(node);
+        }
+        
+        /**
+         * 高亮闪烁节点（金黄色效果）
+         */
+        function highlightNode(node) {
+            if (!node) return;
+            
+            // 保存原始颜色
+            var originalColor = node.color;
+            var originalBgColor = node.bgcolor;
+            
+            // 金黄色高亮颜色
+            var highlightColor = "#FFD700";
+            var highlightBgColor = "#4a3d00";
+            
+            var flashCount = 0;
+            var maxFlashes = 6; // 闪烁3次（6次切换）
+            var flashInterval = 150; // 每次闪烁间隔150ms
+            
+            function flash() {
+                if (flashCount >= maxFlashes) {
+                    // 恢复原始颜色
+                    node.color = originalColor;
+                    node.bgcolor = originalBgColor;
+                    app.canvas.setDirty(true, true);
+                    return;
                 }
-            }, 100);
+                
+                if (flashCount % 2 === 0) {
+                    // 高亮
+                    node.color = highlightColor;
+                    node.bgcolor = highlightBgColor;
+                } else {
+                    // 恢复
+                    node.color = originalColor;
+                    node.bgcolor = originalBgColor;
+                }
+                
+                app.canvas.setDirty(true, true);
+                flashCount++;
+                setTimeout(flash, flashInterval);
+            }
+            
+            // 开始闪烁
+            flash();
+        }
+
+        /**
+         * 获取 easy getNode/setNode 的关联节点
+         * @param {Object} node - 节点对象
+         * @returns {Array} 关联节点数组
+         */
+        function getEasyUseRelatedNodes(node) {
+            const relatedNodes = [];
+            
+            if (!node || !node.graph) {
+                return relatedNodes;
+            }
+
+            try {
+                // 检查是否是 easy getNode
+                if (node.type === 'easy getNode') {
+                    // getNode 可以找到对应的 setNode
+                    if (typeof node.findSetter === 'function') {
+                        const setter = node.findSetter(node.graph);
+                        if (setter) {
+                            const constantValue = node.widgets?.[0]?.value || '';
+                            if (constantValue) {
+                                relatedNodes.push({
+                                    node: setter,
+                                    label: `→ Set_${constantValue}`,
+                                    direction: 'to'
+                                });
+                            }
+                        }
+                    }
+                }
+                // 检查是否是 easy setNode
+                else if (node.type === 'easy setNode') {
+                    // setNode 可以找到所有匹配的 getNode
+                    if (typeof node.findGetters === 'function') {
+                        const getters = node.findGetters(node.graph);
+                        if (getters && getters.length > 0) {
+                            const constantValue = node.widgets?.[0]?.value || '';
+                            getters.forEach(getter => {
+                                relatedNodes.push({
+                                    node: getter,
+                                    label: `→ Get_${constantValue}`,
+                                    direction: 'to'
+                                });
+                            });
+                        }
+                    }
+                }
+            } catch (error) {
+                console.warn("[MechaBaby PortTeleport] 获取 easy use 关联节点失败:", error);
+            }
+
+            return relatedNodes;
         }
 
         /**
@@ -176,13 +280,37 @@ app.registerExtension({
                 output && output.links && output.links.length > 0
             );
 
-            if (hasInputConnections || hasOutputConnections) {
+            // 检查是否是 easy getNode/setNode
+            const isEasyGetNode = node.type === 'easy getNode';
+            const isEasySetNode = node.type === 'easy setNode';
+            const easyRelatedNodes = getEasyUseRelatedNodes(node);
+
+            // 如果有端口连接或 easy use 关联节点，添加菜单
+            if (hasInputConnections || hasOutputConnections || easyRelatedNodes.length > 0) {
                 options.push(null, {
                     content: "🔗 传送到连接节点",
                     has_submenu: true,
                     submenu: {
                         options: (() => {
                             const teleportOptions = [];
+                            
+                            // Easy Use 关联节点（优先显示）
+                            if (easyRelatedNodes.length > 0) {
+                                easyRelatedNodes.forEach(related => {
+                                    const targetNodeTitle = related.node.getTitle ? related.node.getTitle() : (related.node.title || related.node.type);
+                                    teleportOptions.push({
+                                        content: related.label || `→ ${targetNodeTitle}`,
+                                        callback: () => {
+                                            jumpToNode(related.node);
+                                        }
+                                    });
+                                });
+                                
+                                // 如果有其他连接，添加分隔符
+                                if (hasInputConnections || hasOutputConnections) {
+                                    teleportOptions.push(null);
+                                }
+                            }
                             
                             // 输入端口连接
                             if (hasInputConnections && node.inputs) {
@@ -274,12 +402,27 @@ app.registerExtension({
                         }
                     }
                 }
+                // 如果没有点击到端口，检查是否是 easy getNode/setNode
+                else if (node.type === 'easy getNode' || node.type === 'easy setNode') {
+                    const easyRelatedNodes = getEasyUseRelatedNodes(node);
+                    
+                    if (easyRelatedNodes.length > 0) {
+                        // 如果只有一个关联节点，直接跳转
+                        if (easyRelatedNodes.length === 1) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            jumpToNode(easyRelatedNodes[0].node);
+                        }
+                        // 多个关联节点时，通过右键菜单处理（已经在 getNodeMenuOptions 中添加）
+                    }
+                }
             }
             
             return result;
         };
 
         console.log("[MechaBaby PortTeleport] 扩展已加载 - 在节点端口上右键可传送到连接节点");
+        console.log("[MechaBaby PortTeleport] 支持 easy getNode/setNode 节点跳转");
     },
 });
 
