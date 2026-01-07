@@ -217,6 +217,8 @@ app.registerExtension({
             // 保存原始颜色
             var originalColor = node.color;
             var originalBgColor = node.bgcolor;
+            // 保存原始的 constructor.title_color（如果存在）
+            var originalTitleColor = node.constructor && node.constructor.title_color !== undefined ? node.constructor.title_color : null;
             
             // 金黄色高亮颜色
             var highlightColor = "#FFD700";
@@ -231,6 +233,13 @@ app.registerExtension({
                     // 恢复原始颜色
                     node.color = originalColor;
                     node.bgcolor = originalBgColor;
+                    // 恢复原始的 constructor.title_color
+                    if (node.constructor && originalTitleColor !== null) {
+                        node.constructor.title_color = originalTitleColor;
+                    } else if (node.constructor && originalTitleColor === null) {
+                        // 如果原来没有 title_color，删除它
+                        delete node.constructor.title_color;
+                    }
                     app.canvas.setDirty(true, true);
                     return;
                 }
@@ -239,10 +248,20 @@ app.registerExtension({
                     // 高亮
                     node.color = highlightColor;
                     node.bgcolor = highlightBgColor;
+                    // 设置标题栏颜色（如果 constructor 存在）
+                    if (node.constructor) {
+                        node.constructor.title_color = highlightColor;
+                    }
                 } else {
                     // 恢复
                     node.color = originalColor;
                     node.bgcolor = originalBgColor;
+                    // 恢复标题栏颜色
+                    if (node.constructor && originalTitleColor !== null) {
+                        node.constructor.title_color = originalTitleColor;
+                    } else if (node.constructor && originalTitleColor === null) {
+                        delete node.constructor.title_color;
+                    }
                 }
                 
                 app.canvas.setDirty(true, true);
