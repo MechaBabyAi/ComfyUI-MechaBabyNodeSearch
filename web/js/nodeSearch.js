@@ -1246,7 +1246,7 @@ app.registerExtension({
         // 右键菜单通过 getCanvasMenuItems hook 添加（新�?Context Menu API�?
 
         var currentShortcut = config.formatShortcut();
-        console.log("[MechaBaby NodeSearch] 扩展已加�?- �?" + currentShortcut + " 打开搜索");
+        console.log("[MechaBaby NodeSearch] 扩展已加载 - 使用 " + currentShortcut + " 打开搜索");
         console.log("[MechaBaby NodeSearch] 当前语言: " + config.getLanguage());
     }
 });

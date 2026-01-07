@@ -443,8 +443,17 @@ app.registerExtension({
             // 检查是否是右键点击
             if (e.button === 2 && this.node_capturing) {
                 var node = this.node_capturing;
-                var canvasX = typeof e.canvasX === 'number' ? e.canvasX : e.clientX;
-                var canvasY = typeof e.canvasY === 'number' ? e.canvasY : e.clientY;
+                
+                // 优先使用 LiteGraph 提供的坐标转换，保证不同环境下一致
+                var canvasX, canvasY;
+                if (typeof this.convertEventToCanvas === 'function') {
+                    var canvasPos = this.convertEventToCanvas(e);
+                    canvasX = canvasPos[0];
+                    canvasY = canvasPos[1];
+                } else {
+                    canvasX = typeof e.canvasX === 'number' ? e.canvasX : e.clientX;
+                    canvasY = typeof e.canvasY === 'number' ? e.canvasY : e.clientY;
+                }
                 
                 // 尝试获取点击的端口
                 var slotInfo = getSlotAtPosition(node, canvasX, canvasY);
