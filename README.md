@@ -68,6 +68,14 @@ MIT License
 
 ## Changelog
 
+### v1.3.0 (2025-01-08)
+- Added customizable keyboard shortcut support
+- Added multi-language support (Chinese, English, Japanese, Korean, Russian)
+- Auto-detect browser language on first load
+- Added settings dialog for shortcut and language configuration
+- Port teleport menu items now support multi-language
+- Settings menu renamed to "NodeSearch Settings" for clarity
+
 ### v1.2.0 (2025-01-07)
 - Added golden flash highlight effect when jumping to nodes
 - Added support for `easy getNode` and `easy setNode` jumping (comfyui-easy-use extension)

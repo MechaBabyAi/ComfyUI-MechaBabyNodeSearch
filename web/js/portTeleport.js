@@ -28,14 +28,87 @@
  * 
  * @file portTeleport.js
  * @author MechaBaby
- * @version 1.2.0
+ * @version 1.3.0
  */
 
 import { app } from "../../../scripts/app.js";
 
+// 多语言资源（与 nodeSearch.js 共享语言设置）
+var portTeleportI18n = {
+    'zh-CN': {
+        teleportToConnected: '传送到连接节点',
+        input: '输入',
+        output: '输出',
+        noConnection: '无连接',
+        jumpToRelated: '跳转到关联节点'
+    },
+    'en-US': {
+        teleportToConnected: 'Teleport to Connected Nodes',
+        input: 'Input',
+        output: 'Output',
+        noConnection: 'No Connection',
+        jumpToRelated: 'Jump to Related Node'
+    },
+    'ja-JP': {
+        teleportToConnected: '接続ノードにテレポート',
+        input: '入力',
+        output: '出力',
+        noConnection: '接続なし',
+        jumpToRelated: '関連ノードにジャンプ'
+    },
+    'ko-KR': {
+        teleportToConnected: '연결된 노드로 텔레포트',
+        input: '입력',
+        output: '출력',
+        noConnection: '연결 없음',
+        jumpToRelated: '관련 노드로 이동'
+    },
+    'ru-RU': {
+        teleportToConnected: 'Телепорт к подключенным узлам',
+        input: 'Вход',
+        output: 'Выход',
+        noConnection: 'Нет подключения',
+        jumpToRelated: 'Перейти к связанному узлу'
+    }
+};
+
+// 语言代码映射
+var portTeleportLangMap = {
+    'zh': 'zh-CN',
+    'zh-CN': 'zh-CN',
+    'zh-TW': 'zh-CN',
+    'en': 'en-US',
+    'en-US': 'en-US',
+    'en-GB': 'en-US',
+    'ja': 'ja-JP',
+    'ja-JP': 'ja-JP',
+    'ko': 'ko-KR',
+    'ko-KR': 'ko-KR',
+    'ru': 'ru-RU',
+    'ru-RU': 'ru-RU'
+};
+
+// 获取当前语言（与 nodeSearch.js 使用相同的配置）
+function getPortTeleportLanguage() {
+    var saved = localStorage.getItem('mechababy.nodeSearch.language');
+    if (saved && portTeleportI18n[saved]) {
+        return saved;
+    }
+    // 自动检测浏览器语言
+    var browserLang = navigator.language || navigator.userLanguage || 'en-US';
+    return portTeleportLangMap[browserLang] || portTeleportLangMap[browserLang.split('-')[0]] || 'en-US';
+}
+
+// 获取当前语言的文本
+function portTeleportT(key) {
+    var lang = getPortTeleportLanguage();
+    var texts = portTeleportI18n[lang] || portTeleportI18n['en-US'];
+    return texts[key] || portTeleportI18n['en-US'][key] || key;
+}
+
 app.registerExtension({
     name: "MechaBaby.PortTeleport",
-    setup() {
+    setup: function() {
         /**
          * 获取端口连接的节点
          */
@@ -288,7 +361,7 @@ app.registerExtension({
             // 如果有端口连接或 easy use 关联节点，添加菜单
             if (hasInputConnections || hasOutputConnections || easyRelatedNodes.length > 0) {
                 options.push(null, {
-                    content: "🔗 传送到连接节点",
+                    content: "🔗 " + portTeleportT('teleportToConnected'),
                     has_submenu: true,
                     submenu: {
                         options: (() => {
@@ -299,8 +372,8 @@ app.registerExtension({
                                 easyRelatedNodes.forEach(related => {
                                     const targetNodeTitle = related.node.getTitle ? related.node.getTitle() : (related.node.title || related.node.type);
                                     teleportOptions.push({
-                                        content: related.label || `→ ${targetNodeTitle}`,
-                                        callback: () => {
+                                        content: related.label || '→ ' + targetNodeTitle,
+                                        callback: function() {
                                             jumpToNode(related.node);
                                         }
                                     });
@@ -318,11 +391,11 @@ app.registerExtension({
                                     if (input && input.link !== null && input.link !== undefined) {
                                         const connectedNodes = getConnectedNodes(node, index, true);
                                         connectedNodes.forEach(conn => {
-                                            const portName = input.name || `输入 ${index}`;
+                                            const portName = input.name || portTeleportT('input') + ' ' + index;
                                             const targetNodeTitle = conn.node.getTitle ? conn.node.getTitle() : (conn.node.title || conn.node.type);
                                             teleportOptions.push({
-                                                content: `← ${portName} → ${targetNodeTitle}`,
-                                                callback: () => {
+                                                content: '← ' + portName + ' → ' + targetNodeTitle,
+                                                callback: function() {
                                                     jumpToNode(conn.node);
                                                 }
                                             });
@@ -337,11 +410,11 @@ app.registerExtension({
                                     if (output && output.links && output.links.length > 0) {
                                         const connectedNodes = getConnectedNodes(node, index, false);
                                         connectedNodes.forEach(conn => {
-                                            const portName = output.name || `输出 ${index}`;
+                                            const portName = output.name || portTeleportT('output') + ' ' + index;
                                             const targetNodeTitle = conn.node.getTitle ? conn.node.getTitle() : (conn.node.title || conn.node.type);
                                             teleportOptions.push({
-                                                content: `${portName} → ${targetNodeTitle}`,
-                                                callback: () => {
+                                                content: portName + ' → ' + targetNodeTitle,
+                                                callback: function() {
                                                     jumpToNode(conn.node);
                                                 }
                                             });
@@ -351,7 +424,7 @@ app.registerExtension({
                             }
                             
                             return teleportOptions.length > 0 ? teleportOptions : [{
-                                content: "无连接",
+                                content: portTeleportT('noConnection'),
                                 disabled: true
                             }];
                         })()
@@ -389,12 +462,14 @@ app.registerExtension({
                             jumpToNode(connectedNodes[0].node);
                         } else {
                             // 多个连接，显示菜单选择
-                            const menuOptions = connectedNodes.map(conn => ({
-                                content: conn.node.getTitle ? conn.node.getTitle() : (conn.node.title || conn.node.type),
-                                callback: () => {
-                                    jumpToNode(conn.node);
-                                }
-                            }));
+                            const menuOptions = connectedNodes.map(function(conn) {
+                                return {
+                                    content: conn.node.getTitle ? conn.node.getTitle() : (conn.node.title || conn.node.type),
+                                    callback: function() {
+                                        jumpToNode(conn.node);
+                                    }
+                                };
+                            });
                             
                             // 显示上下文菜单
                             const menu = new LiteGraph.ContextMenu(menuOptions);
@@ -421,8 +496,10 @@ app.registerExtension({
             return result;
         };
 
+        var currentLang = getPortTeleportLanguage();
         console.log("[MechaBaby PortTeleport] 扩展已加载 - 在节点端口上右键可传送到连接节点");
         console.log("[MechaBaby PortTeleport] 支持 easy getNode/setNode 节点跳转");
-    },
+        console.log("[MechaBaby PortTeleport] 当前语言: " + currentLang);
+    }
 });
 

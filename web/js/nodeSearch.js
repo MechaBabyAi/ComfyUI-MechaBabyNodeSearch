@@ -19,10 +19,324 @@
  * 
  * @file nodeSearch.js
  * @author MechaBaby
- * @version 1.2.0
+ * @version 1.3.0
  */
 
 import { app } from "../../../scripts/app.js";
+
+// 多语言资源
+var i18n = {
+    'zh-CN': {
+        searchNodes: '搜索节点',
+        inputPlaceholder: '输入关键词搜索节点名称、属性名称或值...',
+        closeButton: '关闭 (Esc)',
+        noResults: '未找到匹配的节点',
+        foundNodes: '找到 {0} 个节点，{1} 个匹配项',
+        nodeTitle: '节点标题',
+        nodeType: '节点类型',
+        widget: '控件',
+        value: '值',
+        property: '属性',
+        propertyValue: '属性值',
+        unknownNode: '未知节点',
+        errorNode: '错误节点',
+        nodeMayNotLoaded: '节点可能未正确加载',
+        matches: '{0} 个匹配',
+        moreMatches: '... 还有 {0} 个匹配项',
+        nodeLabel: '节点: ',
+        typeLabel: '类型: ',
+        widgetLabel: '控件: ',
+        valueLabel: '值: ',
+        propertyLabel: '属性: ',
+        propertyValueLabel: '属性值: ',
+        nodeMayNotLoadedHint: ' | ⚠️ 节点可能未正确加载',
+        settings: '设置',
+        nodeSearchSettings: '节点搜索设置',
+        language: '语言',
+        shortcut: '快捷键',
+        save: '保存',
+        cancel: '取消',
+        selectLanguage: '选择语言',
+        selectShortcut: '设置快捷键',
+        currentShortcut: '当前快捷键: ',
+        pressKey: '按下您想要的快捷键组合...',
+        invalidShortcut: '无效的快捷键，请至少包含 Ctrl/Cmd 和一个按键',
+        shortcutSaved: '快捷键已保存',
+        languageSaved: '语言已保存，请刷新页面',
+        autoDetect: '自动检测',
+        chinese: '中文',
+        english: 'English',
+        japanese: '日本語',
+        korean: '한국어',
+        russian: 'Русский'
+    },
+    'en-US': {
+        searchNodes: 'Search Nodes',
+        inputPlaceholder: 'Enter keywords to search node names, properties, or values...',
+        closeButton: 'Close (Esc)',
+        noResults: 'No matching nodes found',
+        foundNodes: 'Found {0} nodes, {1} matches',
+        nodeTitle: 'Node Title',
+        nodeType: 'Node Type',
+        widget: 'Widget',
+        value: 'Value',
+        property: 'Property',
+        propertyValue: 'Property Value',
+        unknownNode: 'Unknown Node',
+        errorNode: 'Error Node',
+        nodeMayNotLoaded: 'Node may not be loaded correctly',
+        matches: '{0} matches',
+        moreMatches: '... {0} more matches',
+        nodeLabel: 'Node: ',
+        typeLabel: 'Type: ',
+        widgetLabel: 'Widget: ',
+        valueLabel: 'Value: ',
+        propertyLabel: 'Property: ',
+        propertyValueLabel: 'Property Value: ',
+        nodeMayNotLoadedHint: ' | ⚠️ Node may not be loaded correctly',
+        settings: 'Settings',
+        nodeSearchSettings: 'NodeSearch Settings',
+        language: 'Language',
+        shortcut: 'Shortcut',
+        save: 'Save',
+        cancel: 'Cancel',
+        selectLanguage: 'Select Language',
+        selectShortcut: 'Set Shortcut',
+        currentShortcut: 'Current Shortcut: ',
+        pressKey: 'Press your desired shortcut combination...',
+        invalidShortcut: 'Invalid shortcut, please include at least Ctrl/Cmd and one key',
+        shortcutSaved: 'Shortcut saved',
+        languageSaved: 'Language saved, please refresh the page',
+        autoDetect: 'Auto Detect',
+        chinese: '中文',
+        english: 'English',
+        japanese: '日本語',
+        korean: '한국어',
+        russian: 'Русский'
+    },
+    'ja-JP': {
+        searchNodes: 'ノード検索',
+        inputPlaceholder: 'キーワードを入力してノード名、プロパティ、または値を検索...',
+        closeButton: '閉じる (Esc)',
+        noResults: '一致するノードが見つかりません',
+        foundNodes: '{0} 個のノード、{1} 個の一致が見つかりました',
+        nodeTitle: 'ノードタイトル',
+        nodeType: 'ノードタイプ',
+        widget: 'ウィジェット',
+        value: '値',
+        property: 'プロパティ',
+        propertyValue: 'プロパティ値',
+        unknownNode: '不明なノード',
+        errorNode: 'エラーノード',
+        nodeMayNotLoaded: 'ノードが正しく読み込まれていない可能性があります',
+        matches: '{0} 個の一致',
+        moreMatches: '... あと {0} 個の一致',
+        nodeLabel: 'ノード: ',
+        typeLabel: 'タイプ: ',
+        widgetLabel: 'ウィジェット: ',
+        valueLabel: '値: ',
+        propertyLabel: 'プロパティ: ',
+        propertyValueLabel: 'プロパティ値: ',
+        nodeMayNotLoadedHint: ' | ⚠️ ノードが正しく読み込まれていない可能性があります',
+        settings: '設定',
+        nodeSearchSettings: 'NodeSearch 設定',
+        language: '言語',
+        shortcut: 'ショートカット',
+        save: '保存',
+        cancel: 'キャンセル',
+        selectLanguage: '言語を選択',
+        selectShortcut: 'ショートカットを設定',
+        currentShortcut: '現在のショートカット: ',
+        pressKey: '希望のショートカットキーの組み合わせを押してください...',
+        invalidShortcut: '無効なショートカットです。Ctrl/Cmdと少なくとも1つのキーを含めてください',
+        shortcutSaved: 'ショートカットが保存されました',
+        languageSaved: '言語が保存されました。ページを更新してください',
+        autoDetect: '自動検出',
+        chinese: '中文',
+        english: 'English',
+        japanese: '日本語',
+        korean: '한국어',
+        russian: 'Русский'
+    },
+    'ko-KR': {
+        searchNodes: '노드 검색',
+        inputPlaceholder: '키워드를 입력하여 노드 이름, 속성 또는 값을 검색...',
+        closeButton: '닫기 (Esc)',
+        noResults: '일치하는 노드를 찾을 수 없습니다',
+        foundNodes: '{0}개의 노드, {1}개의 일치 항목을 찾았습니다',
+        nodeTitle: '노드 제목',
+        nodeType: '노드 유형',
+        widget: '위젯',
+        value: '값',
+        property: '속성',
+        propertyValue: '속성 값',
+        unknownNode: '알 수 없는 노드',
+        errorNode: '오류 노드',
+        nodeMayNotLoaded: '노드가 제대로 로드되지 않았을 수 있습니다',
+        matches: '{0}개의 일치',
+        moreMatches: '... {0}개 더 일치',
+        nodeLabel: '노드: ',
+        typeLabel: '유형: ',
+        widgetLabel: '위젯: ',
+        valueLabel: '값: ',
+        propertyLabel: '속성: ',
+        propertyValueLabel: '속성 값: ',
+        nodeMayNotLoadedHint: ' | ⚠️ 노드가 제대로 로드되지 않았을 수 있습니다',
+        settings: '설정',
+        nodeSearchSettings: 'NodeSearch 설정',
+        language: '언어',
+        shortcut: '단축키',
+        save: '저장',
+        cancel: '취소',
+        selectLanguage: '언어 선택',
+        selectShortcut: '단축키 설정',
+        currentShortcut: '현재 단축키: ',
+        pressKey: '원하는 단축키 조합을 누르세요...',
+        invalidShortcut: '잘못된 단축키입니다. Ctrl/Cmd와 최소 하나의 키를 포함하세요',
+        shortcutSaved: '단축키가 저장되었습니다',
+        languageSaved: '언어가 저장되었습니다. 페이지를 새로고침하세요',
+        autoDetect: '자동 감지',
+        chinese: '中文',
+        english: 'English',
+        japanese: '日本語',
+        korean: '한국어',
+        russian: 'Русский'
+    },
+    'ru-RU': {
+        searchNodes: 'Поиск узлов',
+        inputPlaceholder: 'Введите ключевые слова для поиска имен узлов, свойств или значений...',
+        closeButton: 'Закрыть (Esc)',
+        noResults: 'Совпадающие узлы не найдены',
+        foundNodes: 'Найдено {0} узлов, {1} совпадений',
+        nodeTitle: 'Заголовок узла',
+        nodeType: 'Тип узла',
+        widget: 'Виджет',
+        value: 'Значение',
+        property: 'Свойство',
+        propertyValue: 'Значение свойства',
+        unknownNode: 'Неизвестный узел',
+        errorNode: 'Ошибочный узел',
+        nodeMayNotLoaded: 'Узел может быть загружен неправильно',
+        matches: '{0} совпадений',
+        moreMatches: '... еще {0} совпадений',
+        nodeLabel: 'Узел: ',
+        typeLabel: 'Тип: ',
+        widgetLabel: 'Виджет: ',
+        valueLabel: 'Значение: ',
+        propertyLabel: 'Свойство: ',
+        propertyValueLabel: 'Значение свойства: ',
+        nodeMayNotLoadedHint: ' | ⚠️ Узел может быть загружен неправильно',
+        settings: 'Настройки',
+        nodeSearchSettings: 'NodeSearch Настройки',
+        language: 'Язык',
+        shortcut: 'Горячая клавиша',
+        save: 'Сохранить',
+        cancel: 'Отмена',
+        selectLanguage: 'Выберите язык',
+        selectShortcut: 'Установить горячую клавишу',
+        currentShortcut: 'Текущая горячая клавиша: ',
+        pressKey: 'Нажмите желаемую комбинацию клавиш...',
+        invalidShortcut: 'Неверная горячая клавиша, пожалуйста, включите как минимум Ctrl/Cmd и одну клавишу',
+        shortcutSaved: 'Горячая клавиша сохранена',
+        languageSaved: 'Язык сохранен, пожалуйста, обновите страницу',
+        autoDetect: 'Автоопределение',
+        chinese: '中文',
+        english: 'English',
+        japanese: '日本語',
+        korean: '한국어',
+        russian: 'Русский'
+    }
+};
+
+// 语言代码映射（将浏览器语言代码映射到支持的语言）
+var langMap = {
+    'zh': 'zh-CN',
+    'zh-CN': 'zh-CN',
+    'zh-TW': 'zh-CN',
+    'en': 'en-US',
+    'en-US': 'en-US',
+    'en-GB': 'en-US',
+    'ja': 'ja-JP',
+    'ja-JP': 'ja-JP',
+    'ko': 'ko-KR',
+    'ko-KR': 'ko-KR',
+    'ru': 'ru-RU',
+    'ru-RU': 'ru-RU'
+};
+
+// 配置管理
+var config = {
+    // 获取当前语言
+    getLanguage: function() {
+        var saved = localStorage.getItem('mechababy.nodeSearch.language');
+        if (saved && i18n[saved]) {
+            return saved;
+        }
+        // 自动检测浏览器语言
+        var browserLang = navigator.language || navigator.userLanguage || 'en-US';
+        return langMap[browserLang] || langMap[browserLang.split('-')[0]] || 'en-US';
+    },
+    // 设置语言
+    setLanguage: function(lang) {
+        if (i18n[lang]) {
+            localStorage.setItem('mechababy.nodeSearch.language', lang);
+            return true;
+        }
+        return false;
+    },
+    // 获取当前快捷键
+    getShortcut: function() {
+        var saved = localStorage.getItem('mechababy.nodeSearch.shortcut');
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                return { ctrl: true, key: 'f' };
+            }
+        }
+        return { ctrl: true, key: 'f' }; // 默认 Ctrl+F
+    },
+    // 设置快捷键
+    setShortcut: function(shortcut) {
+        try {
+            localStorage.setItem('mechababy.nodeSearch.shortcut', JSON.stringify(shortcut));
+            return true;
+        } catch (e) {
+            return false;
+        }
+    },
+    // 格式化快捷键显示
+    formatShortcut: function(shortcut) {
+        if (!shortcut) shortcut = this.getShortcut();
+        var parts = [];
+        if (shortcut.ctrl) parts.push('Ctrl');
+        if (shortcut.alt) parts.push('Alt');
+        if (shortcut.shift) parts.push('Shift');
+        if (shortcut.meta) parts.push('Cmd');
+        if (shortcut.key) {
+            var key = shortcut.key;
+            if (key.length === 1) {
+                key = key.toUpperCase();
+            }
+            parts.push(key);
+        }
+        return parts.join('+');
+    }
+};
+
+// 获取当前语言的文本
+function t(key) {
+    var lang = config.getLanguage();
+    var texts = i18n[lang] || i18n['en-US'];
+    var text = texts[key] || i18n['en-US'][key] || key;
+    // 简单的格式化（支持 {0}, {1} 等占位符）
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            text = text.replace('{' + (i - 1) + '}', arguments[i]);
+        }
+    }
+    return text;
+}
 
 // 模块级变量，用于在不同 hook 之间共享
 var nodeSearchState = {
@@ -30,7 +344,9 @@ var nodeSearchState = {
     searchResults: [],
     currentResultIndex: -1,
     keyboardHandlerBound: false,
-    openSearchDialog: null  // 将在 setup 中设置
+    openSearchDialog: null,  // 将在 setup 中设置
+    currentHandler: null,    // 当前快捷键处理器
+    settingsDialog: null     // 设置对话框
 };
 
 app.registerExtension({
@@ -38,14 +354,47 @@ app.registerExtension({
     
     // 新的 Context Menu API hook
     getCanvasMenuItems: function() {
+        var currentShortcut = config.formatShortcut();
         return [
             null, // separator
             {
-                content: "🔍 搜索节点 (Ctrl+F)",
+                content: '🔍 ' + t('searchNodes') + ' (' + currentShortcut + ')',
                 callback: function() {
                     if (nodeSearchState.openSearchDialog) {
                         nodeSearchState.openSearchDialog();
                     }
+                }
+            },
+            null, // separator
+            {
+                content: '⚙️ ' + t('nodeSearchSettings'),
+                has_submenu: true,
+                submenu: {
+                    options: [
+                        {
+                            content: t('language'),
+                            has_submenu: true,
+                            submenu: {
+                                options: [
+                                    { content: t('autoDetect'), callback: function() { config.setLanguage(config.getLanguage()); } },
+                                    null,
+                                    { content: '🇨🇳 ' + t('chinese'), callback: function() { config.setLanguage('zh-CN'); alert(t('languageSaved')); } },
+                                    { content: '🇺🇸 ' + t('english'), callback: function() { config.setLanguage('en-US'); alert(t('languageSaved')); } },
+                                    { content: '🇯🇵 ' + t('japanese'), callback: function() { config.setLanguage('ja-JP'); alert(t('languageSaved')); } },
+                                    { content: '🇰🇷 ' + t('korean'), callback: function() { config.setLanguage('ko-KR'); alert(t('languageSaved')); } },
+                                    { content: '🇷🇺 ' + t('russian'), callback: function() { config.setLanguage('ru-RU'); alert(t('languageSaved')); } }
+                                ]
+                            }
+                        },
+                        {
+                            content: t('shortcut'),
+                            callback: function() {
+                                if (nodeSearchState.openSettingsDialog) {
+                                    nodeSearchState.openSettingsDialog();
+                                }
+                            }
+                        }
+                    ]
                 }
             }
         ];
@@ -84,16 +433,16 @@ app.registerExtension({
                         try {
                             nodeTitle = node.getTitle ? node.getTitle() : (node.title || node.type || "");
                         } catch (e) {
-                            nodeTitle = node.type || node.title || "未知节点";
+                            nodeTitle = node.type || node.title || t('unknownNode');
                         }
                         
                         // 1. 搜索节点标题
                         if (nodeTitle && nodeTitle.toLowerCase().includes(keywordLower)) {
                             matches.push({
                                 type: 'node_title',
-                                name: '节点标题',
+                                name: t('nodeTitle'),
                                 value: nodeTitle,
-                                display: '节点: ' + nodeTitle
+                                display: t('nodeLabel') + nodeTitle
                             });
                         }
 
@@ -101,9 +450,9 @@ app.registerExtension({
                         if (node.type && node.type.toLowerCase().includes(keywordLower)) {
                             matches.push({
                                 type: 'node_type',
-                                name: '节点类型',
+                                name: t('nodeType'),
                                 value: node.type,
-                                display: '类型: ' + node.type
+                                display: t('typeLabel') + node.type
                             });
                         }
 
@@ -125,7 +474,7 @@ app.registerExtension({
                                                 type: 'widget_name',
                                                 name: widgetName,
                                                 value: widgetValue,
-                                                display: '控件: ' + widgetName + ' = ' + String(widgetValue).substring(0, 50)
+                                                display: t('widgetLabel') + widgetName + ' = ' + String(widgetValue).substring(0, 50)
                                             });
                                         }
                                         
@@ -136,7 +485,7 @@ app.registerExtension({
                                                 type: 'widget_value',
                                                 name: widgetName,
                                                 value: widgetValue,
-                                                display: '值: ' + widgetName + ' = ' + valueStr.substring(0, 50)
+                                                display: t('valueLabel') + widgetName + ' = ' + valueStr.substring(0, 50)
                                             });
                                         }
                                     } catch (widgetError) {
@@ -164,7 +513,7 @@ app.registerExtension({
                                                 type: 'property_name',
                                                 name: propName,
                                                 value: propValue,
-                                                display: '属性: ' + propName + ' = ' + propValueStr.substring(0, 50)
+                                                display: t('propertyLabel') + propName + ' = ' + propValueStr.substring(0, 50)
                                             });
                                         }
                                         
@@ -174,7 +523,7 @@ app.registerExtension({
                                                 type: 'property_value',
                                                 name: propName,
                                                 value: propValue,
-                                                display: '属性值: ' + propName + ' = ' + propValueStr.substring(0, 50)
+                                                display: t('propertyValueLabel') + propName + ' = ' + propValueStr.substring(0, 50)
                                             });
                                         }
                                     } catch (propError) {
@@ -211,14 +560,14 @@ app.registerExtension({
                                 if (nodeType.toLowerCase().includes(keywordLower)) {
                                     results.push({
                                         node: node,
-                                        nodeTitle: nodeType + " (错误节点)",
+                                        nodeTitle: nodeType + ' (' + t('errorNode') + ')',
                                         nodeType: nodeType,
                                         nodeId: node.id,
                                         matches: [{
                                             type: 'node_type',
-                                            name: '节点类型',
+                                            name: t('nodeType'),
                                             value: nodeType,
-                                            display: '类型: ' + nodeType + ' (节点可能未正确加载)'
+                                            display: t('typeLabel') + nodeType + ' (' + t('nodeMayNotLoaded') + ')'
                                         }],
                                         matchCount: 1,
                                         isAvailableNode: false,
@@ -332,7 +681,7 @@ app.registerExtension({
 
             // 标题
             const title = document.createElement('div');
-            title.textContent = '🔍 节点搜索';
+            title.textContent = '🔍 ' + t('searchNodes');
             title.style.cssText = `
                 font-size: 18px;
                 font-weight: bold;
@@ -349,7 +698,7 @@ app.registerExtension({
             
             const input = document.createElement('input');
             input.type = 'text';
-            input.placeholder = '输入关键词搜索节点名称、属性名称或值...';
+            input.placeholder = t('inputPlaceholder');
             input.style.cssText = `
                 width: 100%;
                 padding: 10px;
@@ -420,7 +769,7 @@ app.registerExtension({
 
             // 关闭按钮
             const closeBtn = document.createElement('button');
-            closeBtn.textContent = '关闭 (Esc)';
+            closeBtn.textContent = t('closeButton');
             closeBtn.style.cssText = `
                 margin-top: 10px;
                 padding: 8px 16px;
@@ -447,7 +796,7 @@ app.registerExtension({
 
                 if (searchResults.length === 0) {
                     const emptyMsg = document.createElement('div');
-                    emptyMsg.textContent = '未找到匹配的节点';
+                    emptyMsg.textContent = t('noResults');
                     emptyMsg.style.cssText = `
                         padding: 20px;
                         text-align: center;
@@ -462,7 +811,7 @@ app.registerExtension({
                 for (var i = 0; i < searchResults.length; i++) {
                     totalMatches += searchResults[i].matchCount;
                 }
-                info.textContent = '找到 ' + searchResults.length + ' 个节点，' + totalMatches + ' 个匹配项';
+                info.textContent = t('foundNodes', searchResults.length, totalMatches);
 
                 for (var idx = 0; idx < searchResults.length; idx++) {
                     (function(index) {
@@ -486,7 +835,7 @@ app.registerExtension({
                                     try {
                                         jumpToNode(result.node);
                                     } catch (e) {
-                                        alert('节点 "' + result.nodeTitle + '" 可能未正确加载。请检查扩展是否已安装。');
+                                        alert(t('nodeMayNotLoaded') + ': "' + result.nodeTitle + '"');
                                     }
                                 }
                             } else {
@@ -498,16 +847,16 @@ app.registerExtension({
 
                         // 节点标题
                         var title = document.createElement('div');
-                        var statusBadge = result.hasError ? ' [错误节点]' : '';
-                        title.textContent = result.nodeTitle + statusBadge + ' (' + result.matchCount + ' 个匹配)';
+                        var statusBadge = result.hasError ? ' [' + t('errorNode') + ']' : '';
+                        title.textContent = result.nodeTitle + statusBadge + ' (' + t('matches', result.matchCount) + ')';
                         title.style.cssText = 'font-weight: bold; color: ' + (result.hasError ? '#ff4a4a' : '#4a9eff') + '; margin-bottom: 5px; font-size: 14px;';
                         item.appendChild(title);
 
                         // 节点类型
                         var type = document.createElement('div');
-                        var typeText = '类型: ' + result.nodeType;
+                        var typeText = t('typeLabel') + result.nodeType;
                         if (result.hasError) {
-                            typeText += ' | ⚠️ 节点可能未正确加载';
+                            typeText += t('nodeMayNotLoadedHint');
                         }
                         type.textContent = typeText;
                         type.style.cssText = 'color: ' + (result.hasError ? '#ff8888' : '#888') + '; font-size: 12px; margin-bottom: 8px;';
@@ -525,7 +874,7 @@ app.registerExtension({
                         }
                         if (result.matches.length > 3) {
                             var more = document.createElement('div');
-                            more.textContent = '  ... 还有 ' + (result.matches.length - 3) + ' 个匹配项';
+                            more.textContent = '  ' + t('moreMatches', result.matches.length - 3);
                             more.style.cssText = 'color: #666; font-size: 11px; margin-left: 10px; font-style: italic;';
                             matchesList.appendChild(more);
                         }
@@ -581,14 +930,38 @@ app.registerExtension({
         nodeSearchState.openSearchDialog = openSearchDialog;
 
         /**
-         * 绑定快捷键监听器
+         * 检查快捷键是否匹配
+         */
+        function checkShortcutMatch(e, shortcut) {
+            if (!shortcut) return false;
+            
+            var ctrlMatch = shortcut.ctrl ? (e.ctrlKey || e.metaKey) : (!e.ctrlKey && !e.metaKey);
+            var altMatch = shortcut.alt ? e.altKey : !e.altKey;
+            var shiftMatch = shortcut.shift ? e.shiftKey : !e.shiftKey;
+            var metaMatch = shortcut.meta ? e.metaKey : !e.metaKey;
+            var keyMatch = shortcut.key && (e.key === shortcut.key || e.key === shortcut.key.toLowerCase() || e.key === shortcut.key.toUpperCase());
+            
+            return ctrlMatch && altMatch && shiftMatch && metaMatch && keyMatch;
+        }
+
+        /**
+         * 绑定快捷键监听器（支持自定义快捷键）
          */
         function bindKeyboardShortcut() {
-            if (keyboardHandlerBound) return;
+            // 移除旧的监听器
+            if (nodeSearchState.currentHandler) {
+                document.removeEventListener('keydown', nodeSearchState.currentHandler, true);
+                window.removeEventListener('keydown', nodeSearchState.currentHandler, true);
+                if (app.canvas && app.canvas.canvas) {
+                    app.canvas.canvas.removeEventListener('keydown', nodeSearchState.currentHandler, true);
+                }
+            }
+            
+            var shortcut = config.getShortcut();
             
             var handler = function(e) {
-                // 检查是否是 Ctrl+F 或 Cmd+F
-                if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
+                // 检查是否匹配自定义快捷键
+                if (checkShortcutMatch(e, shortcut)) {
                     // 如果输入框有焦点，不拦截（让用户可以在搜索框中输入）
                     var activeElement = document.activeElement;
                     if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
@@ -606,6 +979,9 @@ app.registerExtension({
                     return false;
                 }
             };
+            
+            // 保存处理器引用
+            nodeSearchState.currentHandler = handler;
             
             // 在多个地方绑定，确保能捕获到
             // 1. document 级别（捕获阶段，优先级最高）
@@ -629,8 +1005,210 @@ app.registerExtension({
             
             keyboardHandlerBound = true;
         }
+
+        /**
+         * 创建设置对话框
+         */
+        function createSettingsDialog() {
+            if (nodeSearchState.settingsDialog) {
+                return nodeSearchState.settingsDialog;
+            }
+
+            var dialog = document.createElement('div');
+            dialog.id = 'mechababy-node-search-settings';
+            dialog.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: #2a2a2a;
+                border: 2px solid #4a4a4a;
+                border-radius: 8px;
+                padding: 20px;
+                z-index: 10001;
+                min-width: 400px;
+                max-width: 500px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+                font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+            `;
+
+            // 标题
+            var title = document.createElement('div');
+            title.textContent = '⚙️ ' + t('settings');
+            title.style.cssText = `
+                font-size: 18px;
+                font-weight: bold;
+                color: #e0e0e0;
+                margin-bottom: 20px;
+                border-bottom: 1px solid #4a4a4a;
+                padding-bottom: 10px;
+            `;
+            dialog.appendChild(title);
+
+            // 快捷键设置
+            var shortcutSection = document.createElement('div');
+            shortcutSection.style.cssText = 'margin-bottom: 20px;';
+            
+            var shortcutLabel = document.createElement('div');
+            shortcutLabel.textContent = t('shortcut') + ':';
+            shortcutLabel.style.cssText = 'color: #e0e0e0; margin-bottom: 8px; font-size: 14px;';
+            shortcutSection.appendChild(shortcutLabel);
+
+            var shortcutDisplay = document.createElement('div');
+            var currentShortcut = config.getShortcut();
+            shortcutDisplay.textContent = t('currentShortcut') + config.formatShortcut(currentShortcut);
+            shortcutDisplay.style.cssText = 'color: #4a9eff; margin-bottom: 10px; font-size: 13px; padding: 8px; background: #1a1a1a; border-radius: 4px;';
+            shortcutSection.appendChild(shortcutDisplay);
+
+            var shortcutInput = document.createElement('input');
+            shortcutInput.type = 'text';
+            shortcutInput.placeholder = t('pressKey');
+            shortcutInput.readOnly = true;
+            shortcutInput.style.cssText = `
+                width: 100%;
+                padding: 10px;
+                background: #1a1a1a;
+                border: 1px solid #4a4a4a;
+                border-radius: 4px;
+                color: #e0e0e0;
+                font-size: 14px;
+                box-sizing: border-box;
+            `;
+
+            var capturing = false;
+            var capturedShortcut = null;
+
+            shortcutInput.addEventListener('focus', function() {
+                if (!capturing) {
+                    capturing = true;
+                    shortcutInput.placeholder = t('pressKey');
+                    shortcutInput.value = '';
+                    capturedShortcut = null;
+                }
+            });
+
+            shortcutInput.addEventListener('keydown', function(e) {
+                if (!capturing) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                // 忽略某些特殊键
+                if (e.key === 'Tab' || e.key === 'Escape' || e.key === 'Enter') {
+                    return;
+                }
+
+                // 至少需要 Ctrl/Cmd 和一个按键
+                if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+                    shortcutInput.value = t('invalidShortcut');
+                    return;
+                }
+
+                var shortcut = {
+                    ctrl: e.ctrlKey || e.metaKey,
+                    alt: e.altKey,
+                    shift: e.shiftKey,
+                    meta: e.metaKey,
+                    key: e.key
+                };
+
+                capturedShortcut = shortcut;
+                shortcutInput.value = config.formatShortcut(shortcut);
+            });
+
+            shortcutSection.appendChild(shortcutInput);
+            dialog.appendChild(shortcutSection);
+
+            // 按钮
+            var buttonContainer = document.createElement('div');
+            buttonContainer.style.cssText = 'display: flex; gap: 10px; justify-content: flex-end;';
+
+            var saveBtn = document.createElement('button');
+            saveBtn.textContent = t('save');
+            saveBtn.style.cssText = `
+                padding: 8px 16px;
+                background: #4a9eff;
+                border: none;
+                border-radius: 4px;
+                color: #fff;
+                cursor: pointer;
+                font-size: 14px;
+            `;
+            saveBtn.addEventListener('click', function() {
+                if (capturedShortcut) {
+                    // 验证快捷键
+                    if (!capturedShortcut.key || (!capturedShortcut.ctrl && !capturedShortcut.meta && !capturedShortcut.alt)) {
+                        alert(t('invalidShortcut'));
+                        return;
+                    }
+                    config.setShortcut(capturedShortcut);
+                    bindKeyboardShortcut(); // 重新绑定快捷键
+                    alert(t('shortcutSaved'));
+                    closeSettingsDialog();
+                } else {
+                    closeSettingsDialog();
+                }
+            });
+
+            var cancelBtn = document.createElement('button');
+            cancelBtn.textContent = t('cancel');
+            cancelBtn.style.cssText = `
+                padding: 8px 16px;
+                background: #4a4a4a;
+                border: none;
+                border-radius: 4px;
+                color: #e0e0e0;
+                cursor: pointer;
+                font-size: 14px;
+            `;
+            cancelBtn.addEventListener('click', closeSettingsDialog);
+
+            buttonContainer.appendChild(cancelBtn);
+            buttonContainer.appendChild(saveBtn);
+            dialog.appendChild(buttonContainer);
+
+            function closeSettingsDialog() {
+                if (dialog.parentNode) {
+                    dialog.parentNode.removeChild(dialog);
+                }
+                nodeSearchState.settingsDialog = null;
+                capturing = false;
+                capturedShortcut = null;
+            }
+
+            // 点击外部关闭
+            dialog.addEventListener('click', function(e) {
+                if (e.target === dialog) {
+                    closeSettingsDialog();
+                }
+            });
+
+            nodeSearchState.settingsDialog = dialog;
+            return dialog;
+        }
+
+        /**
+         * 打开设置对话框
+         */
+        function openSettingsDialog() {
+            if (!nodeSearchState.settingsDialog) {
+                nodeSearchState.settingsDialog = createSettingsDialog();
+                document.body.appendChild(nodeSearchState.settingsDialog);
+            }
+            
+            // 聚焦快捷键输入框
+            setTimeout(function() {
+                var input = nodeSearchState.settingsDialog.querySelector('input');
+                if (input) {
+                    input.focus();
+                }
+            }, 50);
+        }
+
+        // 保存函数引用到模块级变量
+        nodeSearchState.openSettingsDialog = openSettingsDialog;
         
-        // 立即绑定
+        // 立即绑定快捷键
         bindKeyboardShortcut();
         
         // 延迟再次绑定，确保在所有扩展加载后
@@ -640,7 +1218,9 @@ app.registerExtension({
 
         // 右键菜单通过 getCanvasMenuItems hook 添加（新的 Context Menu API）
 
-        console.log("[MechaBaby NodeSearch] 扩展已加载 - 按 Ctrl+F 打开搜索");
+        var currentShortcut = config.formatShortcut();
+        console.log("[MechaBaby NodeSearch] 扩展已加载 - 按 " + currentShortcut + " 打开搜索");
+        console.log("[MechaBaby NodeSearch] 当前语言: " + config.getLanguage());
     }
 });
 
