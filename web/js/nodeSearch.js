@@ -683,36 +683,34 @@ app.registerExtension({
 
             const dialog = document.createElement('div');
             dialog.id = 'mechababy-node-search-dialog';
-            dialog.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: #2a2a2a;
-                border: 2px solid #4a4a4a;
-                border-radius: 8px;
-                padding: 20px;
-                z-index: 10000;
-                min-width: 500px;
-                max-width: 700px;
-                max-height: 600px;
-                display: flex;
-                flex-direction: column;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-                font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
-            `;
+            dialog.style.cssText =
+                'position: fixed;' +
+                'top: 50%;' +
+                'left: 50%;' +
+                'transform: translate(-50%, -50%);' +
+                'background: #2a2a2a;' +
+                'border: 2px solid #4a4a4a;' +
+                'border-radius: 8px;' +
+                'padding: 20px;' +
+                'z-index: 10000;' +
+                'min-width: 500px;' +
+                'max-width: 700px;' +
+                'max-height: 600px;' +
+                'display: flex;' +
+                'flex-direction: column;' +
+                'box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);' +
+                "font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;";
 
             // 标题
             const title = document.createElement('div');
             title.textContent = '🔍 ' + t('searchNodes');
-            title.style.cssText = `
-                font-size: 18px;
-                font-weight: bold;
-                color: #e0e0e0;
-                margin-bottom: 15px;
-                border-bottom: 1px solid #4a4a4a;
-                padding-bottom: 10px;
-            `;
+            title.style.cssText =
+                'font-size: 18px;' +
+                'font-weight: bold;' +
+                'color: #e0e0e0;' +
+                'margin-bottom: 15px;' +
+                'border-bottom: 1px solid #4a4a4a;' +
+                'padding-bottom: 10px;';
             dialog.appendChild(title);
             
             // 搜索输入�?
@@ -722,16 +720,15 @@ app.registerExtension({
             const input = document.createElement('input');
             input.type = 'text';
             input.placeholder = t('inputPlaceholder');
-            input.style.cssText = `
-                width: 100%;
-                padding: 10px;
-                background: #1a1a1a;
-                border: 1px solid #4a4a4a;
-                border-radius: 4px;
-                color: #e0e0e0;
-                font-size: 14px;
-                box-sizing: border-box;
-            `;
+            input.style.cssText =
+                'width: 100%;' +
+                'padding: 10px;' +
+                'background: #1a1a1a;' +
+                'border: 1px solid #4a4a4a;' +
+                'border-radius: 4px;' +
+                'color: #e0e0e0;' +
+                'font-size: 14px;' +
+                'box-sizing: border-box;';
             
             input.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
@@ -769,40 +766,37 @@ app.registerExtension({
             // 结果列表容器
             const resultsContainer = document.createElement('div');
             resultsContainer.id = 'search-results-container';
-            resultsContainer.style.cssText = `
-                flex: 1;
-                overflow-y: auto;
-                max-height: 400px;
-                border: 1px solid #4a4a4a;
-                border-radius: 4px;
-                background: #1a1a1a;
-            `;
+            resultsContainer.style.cssText =
+                'flex: 1;' +
+                'overflow-y: auto;' +
+                'max-height: 400px;' +
+                'border: 1px solid #4a4a4a;' +
+                'border-radius: 4px;' +
+                'background: #1a1a1a;';
             dialog.appendChild(resultsContainer);
 
             // 提示信息
             const info = document.createElement('div');
             info.id = 'search-info';
-            info.style.cssText = `
-                margin-top: 10px;
-                font-size: 12px;
-                color: #888;
-                text-align: center;
-            `;
+            info.style.cssText =
+                'margin-top: 10px;' +
+                'font-size: 12px;' +
+                'color: #888;' +
+                'text-align: center;';
             dialog.appendChild(info);
 
             // 关闭按钮
             const closeBtn = document.createElement('button');
             closeBtn.textContent = t('closeButton');
-            closeBtn.style.cssText = `
-                margin-top: 10px;
-                padding: 8px 16px;
-                background: #4a4a4a;
-                border: none;
-                border-radius: 4px;
-                color: #e0e0e0;
-                cursor: pointer;
-                font-size: 14px;
-            `;
+            closeBtn.style.cssText =
+                'margin-top: 10px;' +
+                'padding: 8px 16px;' +
+                'background: #4a4a4a;' +
+                'border: none;' +
+                'border-radius: 4px;' +
+                'color: #e0e0e0;' +
+                'cursor: pointer;' +
+                'font-size: 14px;';
             closeBtn.addEventListener('click', closeDialog);
             closeBtn.addEventListener('mouseenter', function() {
                 closeBtn.style.background = '#5a5a5a';
@@ -820,11 +814,10 @@ app.registerExtension({
                 if (searchResults.length === 0) {
                     const emptyMsg = document.createElement('div');
                     emptyMsg.textContent = t('noResults');
-                    emptyMsg.style.cssText = `
-                        padding: 20px;
-                        text-align: center;
-                        color: #888;
-                    `;
+                    emptyMsg.style.cssText =
+                        'padding: 20px;' +
+                        'text-align: center;' +
+                        'color: #888;';
                     container.appendChild(emptyMsg);
                     info.textContent = '';
                     return;
@@ -1055,33 +1048,31 @@ app.registerExtension({
 
             var dialog = document.createElement('div');
             dialog.id = 'mechababy-node-search-settings';
-            dialog.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: #2a2a2a;
-                border: 2px solid #4a4a4a;
-                border-radius: 8px;
-                padding: 20px;
-                z-index: 10001;
-                min-width: 400px;
-                max-width: 500px;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-                font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
-            `;
+            dialog.style.cssText =
+                'position: fixed;' +
+                'top: 50%;' +
+                'left: 50%;' +
+                'transform: translate(-50%, -50%);' +
+                'background: #2a2a2a;' +
+                'border: 2px solid #4a4a4a;' +
+                'border-radius: 8px;' +
+                'padding: 20px;' +
+                'z-index: 10001;' +
+                'min-width: 400px;' +
+                'max-width: 500px;' +
+                'box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);' +
+                "font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;";
 
             // 标题
             var title = document.createElement('div');
             title.textContent = '⚙️ ' + t('settings');
-            title.style.cssText = `
-                font-size: 18px;
-                font-weight: bold;
-                color: #e0e0e0;
-                margin-bottom: 20px;
-                border-bottom: 1px solid #4a4a4a;
-                padding-bottom: 10px;
-            `;
+            title.style.cssText =
+                'font-size: 18px;' +
+                'font-weight: bold;' +
+                'color: #e0e0e0;' +
+                'margin-bottom: 20px;' +
+                'border-bottom: 1px solid #4a4a4a;' +
+                'padding-bottom: 10px;';
             dialog.appendChild(title);
 
             // 快捷键设�?
@@ -1103,16 +1094,15 @@ app.registerExtension({
             shortcutInput.type = 'text';
             shortcutInput.placeholder = t('pressKey');
             shortcutInput.readOnly = true;
-            shortcutInput.style.cssText = `
-                width: 100%;
-                padding: 10px;
-                background: #1a1a1a;
-                border: 1px solid #4a4a4a;
-                border-radius: 4px;
-                color: #e0e0e0;
-                font-size: 14px;
-                box-sizing: border-box;
-            `;
+            shortcutInput.style.cssText =
+                'width: 100%;' +
+                'padding: 10px;' +
+                'background: #1a1a1a;' +
+                'border: 1px solid #4a4a4a;' +
+                'border-radius: 4px;' +
+                'color: #e0e0e0;' +
+                'font-size: 14px;' +
+                'box-sizing: border-box;';
 
             var capturing = false;
             var capturedShortcut = null;
@@ -1164,15 +1154,14 @@ app.registerExtension({
 
             var saveBtn = document.createElement('button');
             saveBtn.textContent = t('save');
-            saveBtn.style.cssText = `
-                padding: 8px 16px;
-                background: #4a9eff;
-                border: none;
-                border-radius: 4px;
-                color: #fff;
-                cursor: pointer;
-                font-size: 14px;
-            `;
+            saveBtn.style.cssText =
+                'padding: 8px 16px;' +
+                'background: #4a9eff;' +
+                'border: none;' +
+                'border-radius: 4px;' +
+                'color: #fff;' +
+                'cursor: pointer;' +
+                'font-size: 14px;';
             saveBtn.addEventListener('click', function() {
                 if (capturedShortcut) {
                     // 验证快捷�?
@@ -1191,15 +1180,14 @@ app.registerExtension({
 
             var cancelBtn = document.createElement('button');
             cancelBtn.textContent = t('cancel');
-            cancelBtn.style.cssText = `
-                padding: 8px 16px;
-                background: #4a4a4a;
-                border: none;
-                border-radius: 4px;
-                color: #e0e0e0;
-                cursor: pointer;
-                font-size: 14px;
-            `;
+            cancelBtn.style.cssText =
+                'padding: 8px 16px;' +
+                'background: #4a4a4a;' +
+                'border: none;' +
+                'border-radius: 4px;' +
+                'color: #e0e0e0;' +
+                'cursor: pointer;' +
+                'font-size: 14px;';
             cancelBtn.addEventListener('click', closeSettingsDialog);
 
             buttonContainer.appendChild(cancelBtn);
