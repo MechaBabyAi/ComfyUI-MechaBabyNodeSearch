@@ -28,7 +28,7 @@
  * 
  * @file portTeleport.js
  * @author MechaBaby
- * @version 1.3.0
+ * @version 1.3.2
  */
 
 import { app } from "../../../scripts/app.js";
@@ -113,7 +113,7 @@ app.registerExtension({
          * 获取端口连接的节点
          */
         function getConnectedNodes(node, slotIndex, isInput) {
-            const connectedNodes = [];
+            var connectedNodes = [];
             
             if (!node || slotIndex === undefined) {
                 return connectedNodes;
@@ -122,12 +122,12 @@ app.registerExtension({
             try {
                 if (isInput) {
                     // 输入端口：查找连接到这个端口的节点
-                    const input = node.inputs?.[slotIndex];
+                    var input = node.inputs && node.inputs[slotIndex];
                     if (input && input.link !== null && input.link !== undefined) {
-                        const linkId = Array.isArray(input.link) ? input.link[0] : input.link;
-                        const link = app.graph.links?.[linkId];
+                        var linkId = Array.isArray(input.link) ? input.link[0] : input.link;
+                        var link = app.graph.links && app.graph.links[linkId];
                         if (link) {
-                            const sourceNode = app.graph.getNodeById(link.origin_id);
+                            var sourceNode = app.graph.getNodeById(link.origin_id);
                             if (sourceNode) {
                                 connectedNodes.push({
                                     node: sourceNode,
@@ -139,12 +139,12 @@ app.registerExtension({
                     }
                 } else {
                     // 输出端口：查找这个端口连接到的所有节点
-                    const output = node.outputs?.[slotIndex];
+                    var output = node.outputs && node.outputs[slotIndex];
                     if (output && output.links && Array.isArray(output.links)) {
-                        output.links.forEach(linkId => {
-                            const link = app.graph.links?.[linkId];
+                        output.links.forEach(function(linkId) {
+                            var link = app.graph.links && app.graph.links[linkId];
                             if (link) {
-                                const targetNode = app.graph.getNodeById(link.target_id);
+                                var targetNode = app.graph.getNodeById(link.target_id);
                                 if (targetNode) {
                                     connectedNodes.push({
                                         node: targetNode,
@@ -231,7 +231,7 @@ app.registerExtension({
          * @returns {Array} 关联节点数组
          */
         function getEasyUseRelatedNodes(node) {
-            const relatedNodes = [];
+            var relatedNodes = [];
             
             if (!node || !node.graph) {
                 return relatedNodes;
@@ -242,13 +242,13 @@ app.registerExtension({
                 if (node.type === 'easy getNode') {
                     // getNode 可以找到对应的 setNode
                     if (typeof node.findSetter === 'function') {
-                        const setter = node.findSetter(node.graph);
+                        var setter = node.findSetter(node.graph);
                         if (setter) {
-                            const constantValue = node.widgets?.[0]?.value || '';
+                            var constantValue = (node.widgets && node.widgets[0] && node.widgets[0].value) || '';
                             if (constantValue) {
                                 relatedNodes.push({
                                     node: setter,
-                                    label: `→ Set_${constantValue}`,
+                                    label: '→ Set_' + constantValue,
                                     direction: 'to'
                                 });
                             }
@@ -259,13 +259,13 @@ app.registerExtension({
                 else if (node.type === 'easy setNode') {
                     // setNode 可以找到所有匹配的 getNode
                     if (typeof node.findGetters === 'function') {
-                        const getters = node.findGetters(node.graph);
+                        var getters = node.findGetters(node.graph);
                         if (getters && getters.length > 0) {
-                            const constantValue = node.widgets?.[0]?.value || '';
-                            getters.forEach(getter => {
+                            var constantValue = (node.widgets && node.widgets[0] && node.widgets[0].value) || '';
+                            getters.forEach(function(getter) {
                                 relatedNodes.push({
                                     node: getter,
-                                    label: `→ Get_${constantValue}`,
+                                    label: '→ Get_' + constantValue,
                                     direction: 'to'
                                 });
                             });
@@ -287,21 +287,21 @@ app.registerExtension({
 
             try {
                 // 尝试从节点获取端口信息
-                const nodeRect = node.computeSize ? node.computeSize() : null;
+                var nodeRect = node.computeSize ? node.computeSize() : null;
                 if (!nodeRect) return null;
 
                 // 计算相对位置
-                const relativeX = x - node.pos[0];
-                const relativeY = y - node.pos[1];
+                var relativeX = x - node.pos[0];
+                var relativeY = y - node.pos[1];
 
                 // 检查输入端口
                 if (node.inputs && Array.isArray(node.inputs)) {
-                    for (let i = 0; i < node.inputs.length; i++) {
-                        const input = node.inputs[i];
+                    for (var i = 0; i < node.inputs.length; i++) {
+                        var input = node.inputs[i];
                         if (input && input.pos) {
-                            const slotX = input.pos[0];
-                            const slotY = input.pos[1];
-                            const distance = Math.sqrt(
+                            var slotX = input.pos[0];
+                            var slotY = input.pos[1];
+                            var distance = Math.sqrt(
                                 Math.pow(relativeX - slotX, 2) + 
                                 Math.pow(relativeY - slotY, 2)
                             );
@@ -315,18 +315,18 @@ app.registerExtension({
 
                 // 检查输出端口
                 if (node.outputs && Array.isArray(node.outputs)) {
-                    for (let i = 0; i < node.outputs.length; i++) {
-                        const output = node.outputs[i];
+                    for (var j = 0; j < node.outputs.length; j++) {
+                        var output = node.outputs[j];
                         if (output && output.pos) {
-                            const slotX = output.pos[0];
-                            const slotY = output.pos[1];
-                            const distance = Math.sqrt(
+                            var slotX2 = output.pos[0];
+                            var slotY2 = output.pos[1];
+                            var distance2 = Math.sqrt(
                                 Math.pow(relativeX - slotX, 2) + 
-                                Math.pow(relativeY - slotY, 2)
+                                Math.pow(relativeY - slotY2, 2)
                             );
                             // 如果距离小于20像素，认为是这个端口
-                            if (distance < 20) {
-                                return { index: i, isInput: false, slot: output };
+                            if (distance2 < 20) {
+                                return { index: j, isInput: false, slot: output };
                             }
                         }
                     }
@@ -341,22 +341,22 @@ app.registerExtension({
         /**
          * 修改节点右键菜单，添加端口传送选项
          */
-        const origGetNodeMenuOptions = LGraphCanvas.prototype.getNodeMenuOptions;
+        var origGetNodeMenuOptions = LGraphCanvas.prototype.getNodeMenuOptions;
         LGraphCanvas.prototype.getNodeMenuOptions = function(node) {
-            const options = origGetNodeMenuOptions.apply(this, arguments);
+            var options = origGetNodeMenuOptions.apply(this, arguments);
             
             // 检查是否有连接的端口
-            const hasInputConnections = node.inputs && node.inputs.some(input => 
-                input && input.link !== null && input.link !== undefined
+            var hasInputConnections = node.inputs && node.inputs.some(function(input) { 
+                return input && input.link !== null && input.link !== undefined;
             );
-            const hasOutputConnections = node.outputs && node.outputs.some(output => 
-                output && output.links && output.links.length > 0
+            var hasOutputConnections = node.outputs && node.outputs.some(function(output) { 
+                return output && output.links && output.links.length > 0;
             );
 
             // 检查是否是 easy getNode/setNode
-            const isEasyGetNode = node.type === 'easy getNode';
-            const isEasySetNode = node.type === 'easy setNode';
-            const easyRelatedNodes = getEasyUseRelatedNodes(node);
+            var isEasyGetNode = node.type === 'easy getNode';
+            var isEasySetNode = node.type === 'easy setNode';
+            var easyRelatedNodes = getEasyUseRelatedNodes(node);
 
             // 如果有端口连接或 easy use 关联节点，添加菜单
             if (hasInputConnections || hasOutputConnections || easyRelatedNodes.length > 0) {
@@ -364,13 +364,13 @@ app.registerExtension({
                     content: "🔗 " + portTeleportT('teleportToConnected'),
                     has_submenu: true,
                     submenu: {
-                        options: (() => {
-                            const teleportOptions = [];
+                        options: (function() {
+                            var teleportOptions = [];
                             
                             // Easy Use 关联节点（优先显示）
                             if (easyRelatedNodes.length > 0) {
-                                easyRelatedNodes.forEach(related => {
-                                    const targetNodeTitle = related.node.getTitle ? related.node.getTitle() : (related.node.title || related.node.type);
+                                easyRelatedNodes.forEach(function(related) {
+                                    var targetNodeTitle = related.node.getTitle ? related.node.getTitle() : (related.node.title || related.node.type);
                                     teleportOptions.push({
                                         content: related.label || '→ ' + targetNodeTitle,
                                         callback: function() {
@@ -387,12 +387,12 @@ app.registerExtension({
                             
                             // 输入端口连接
                             if (hasInputConnections && node.inputs) {
-                                node.inputs.forEach((input, index) => {
+                                node.inputs.forEach(function(input, index) {
                                     if (input && input.link !== null && input.link !== undefined) {
-                                        const connectedNodes = getConnectedNodes(node, index, true);
-                                        connectedNodes.forEach(conn => {
-                                            const portName = input.name || portTeleportT('input') + ' ' + index;
-                                            const targetNodeTitle = conn.node.getTitle ? conn.node.getTitle() : (conn.node.title || conn.node.type);
+                                        var connectedNodes = getConnectedNodes(node, index, true);
+                                        connectedNodes.forEach(function(conn) {
+                                            var portName = input.name || portTeleportT('input') + ' ' + index;
+                                            var targetNodeTitle = conn.node.getTitle ? conn.node.getTitle() : (conn.node.title || conn.node.type);
                                             teleportOptions.push({
                                                 content: '← ' + portName + ' → ' + targetNodeTitle,
                                                 callback: function() {
@@ -406,12 +406,12 @@ app.registerExtension({
                             
                             // 输出端口连接
                             if (hasOutputConnections && node.outputs) {
-                                node.outputs.forEach((output, index) => {
+                                node.outputs.forEach(function(output, index) {
                                     if (output && output.links && output.links.length > 0) {
-                                        const connectedNodes = getConnectedNodes(node, index, false);
-                                        connectedNodes.forEach(conn => {
-                                            const portName = output.name || portTeleportT('output') + ' ' + index;
-                                            const targetNodeTitle = conn.node.getTitle ? conn.node.getTitle() : (conn.node.title || conn.node.type);
+                                        var connectedNodes = getConnectedNodes(node, index, false);
+                                        connectedNodes.forEach(function(conn) {
+                                            var portName = output.name || portTeleportT('output') + ' ' + index;
+                                            var targetNodeTitle = conn.node.getTitle ? conn.node.getTitle() : (conn.node.title || conn.node.type);
                                             teleportOptions.push({
                                                 content: portName + ' → ' + targetNodeTitle,
                                                 callback: function() {
@@ -436,21 +436,21 @@ app.registerExtension({
         };
 
         // 尝试在端口上直接右键（需要监听鼠标事件）
-        const origOnMouseDown = LGraphCanvas.prototype.onMouseDown;
+        var origOnMouseDown = LGraphCanvas.prototype.onMouseDown;
         LGraphCanvas.prototype.onMouseDown = function(e) {
-            const result = origOnMouseDown.apply(this, arguments);
+            var result = origOnMouseDown.apply(this, arguments);
             
             // 检查是否是右键点击
             if (e.button === 2 && this.node_capturing) {
-                const node = this.node_capturing;
-                const canvasX = e.canvasX || e.clientX;
-                const canvasY = e.canvasY || e.clientY;
+                var node = this.node_capturing;
+                var canvasX = typeof e.canvasX === 'number' ? e.canvasX : e.clientX;
+                var canvasY = typeof e.canvasY === 'number' ? e.canvasY : e.clientY;
                 
                 // 尝试获取点击的端口
-                const slotInfo = getSlotAtPosition(node, canvasX, canvasY);
+                var slotInfo = getSlotAtPosition(node, canvasX, canvasY);
                 
                 if (slotInfo) {
-                    const connectedNodes = getConnectedNodes(node, slotInfo.index, slotInfo.isInput);
+                    var connectedNodes = getConnectedNodes(node, slotInfo.index, slotInfo.isInput);
                     
                     if (connectedNodes.length > 0) {
                         // 阻止默认右键菜单
@@ -462,7 +462,7 @@ app.registerExtension({
                             jumpToNode(connectedNodes[0].node);
                         } else {
                             // 多个连接，显示菜单选择
-                            const menuOptions = connectedNodes.map(function(conn) {
+                            var menuOptions = connectedNodes.map(function(conn) {
                                 return {
                                     content: conn.node.getTitle ? conn.node.getTitle() : (conn.node.title || conn.node.type),
                                     callback: function() {
@@ -479,7 +479,7 @@ app.registerExtension({
                 }
                 // 如果没有点击到端口，检查是否是 easy getNode/setNode
                 else if (node.type === 'easy getNode' || node.type === 'easy setNode') {
-                    const easyRelatedNodes = getEasyUseRelatedNodes(node);
+                    var easyRelatedNodes = getEasyUseRelatedNodes(node);
                     
                     if (easyRelatedNodes.length > 0) {
                         // 如果只有一个关联节点，直接跳转
