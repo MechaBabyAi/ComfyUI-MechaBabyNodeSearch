@@ -68,6 +68,11 @@ MIT License
 
 ## Changelog
 
+### v1.3.1 (2025-01-08)
+- Added node ID search functionality
+- Updated input placeholder to mention node ID search
+- Enhanced search to include node ID matching
+
 ### v1.3.0 (2025-01-08)
 - Added customizable keyboard shortcut support
 - Added multi-language support (Chinese, English, Japanese, Korean, Russian)

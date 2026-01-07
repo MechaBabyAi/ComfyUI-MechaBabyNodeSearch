@@ -19,7 +19,7 @@
  * 
  * @file nodeSearch.js
  * @author MechaBaby
- * @version 1.3.0
+ * @version 1.3.1
  */
 
 import { app } from "../../../scripts/app.js";
@@ -28,12 +28,13 @@ import { app } from "../../../scripts/app.js";
 var i18n = {
     'zh-CN': {
         searchNodes: '搜索节点',
-        inputPlaceholder: '输入关键词搜索节点名称、属性名称或值...',
+        inputPlaceholder: '输入关键词搜索节点名称、ID、属性名称或值...',
         closeButton: '关闭 (Esc)',
         noResults: '未找到匹配的节点',
         foundNodes: '找到 {0} 个节点，{1} 个匹配项',
         nodeTitle: '节点标题',
         nodeType: '节点类型',
+        nodeId: '节点ID',
         widget: '控件',
         value: '值',
         property: '属性',
@@ -45,6 +46,7 @@ var i18n = {
         moreMatches: '... 还有 {0} 个匹配项',
         nodeLabel: '节点: ',
         typeLabel: '类型: ',
+        nodeIdLabel: 'ID: ',
         widgetLabel: '控件: ',
         valueLabel: '值: ',
         propertyLabel: '属性: ',
@@ -72,12 +74,13 @@ var i18n = {
     },
     'en-US': {
         searchNodes: 'Search Nodes',
-        inputPlaceholder: 'Enter keywords to search node names, properties, or values...',
+        inputPlaceholder: 'Enter keywords to search node names, IDs, properties, or values...',
         closeButton: 'Close (Esc)',
         noResults: 'No matching nodes found',
         foundNodes: 'Found {0} nodes, {1} matches',
         nodeTitle: 'Node Title',
         nodeType: 'Node Type',
+        nodeId: 'Node ID',
         widget: 'Widget',
         value: 'Value',
         property: 'Property',
@@ -89,6 +92,7 @@ var i18n = {
         moreMatches: '... {0} more matches',
         nodeLabel: 'Node: ',
         typeLabel: 'Type: ',
+        nodeIdLabel: 'ID: ',
         widgetLabel: 'Widget: ',
         valueLabel: 'Value: ',
         propertyLabel: 'Property: ',
@@ -116,12 +120,13 @@ var i18n = {
     },
     'ja-JP': {
         searchNodes: 'ノード検索',
-        inputPlaceholder: 'キーワードを入力してノード名、プロパティ、または値を検索...',
+        inputPlaceholder: 'キーワードを入力してノード名、ID、プロパティ、または値を検索...',
         closeButton: '閉じる (Esc)',
         noResults: '一致するノードが見つかりません',
         foundNodes: '{0} 個のノード、{1} 個の一致が見つかりました',
         nodeTitle: 'ノードタイトル',
         nodeType: 'ノードタイプ',
+        nodeId: 'ノードID',
         widget: 'ウィジェット',
         value: '値',
         property: 'プロパティ',
@@ -133,6 +138,7 @@ var i18n = {
         moreMatches: '... あと {0} 個の一致',
         nodeLabel: 'ノード: ',
         typeLabel: 'タイプ: ',
+        nodeIdLabel: 'ID: ',
         widgetLabel: 'ウィジェット: ',
         valueLabel: '値: ',
         propertyLabel: 'プロパティ: ',
@@ -160,12 +166,13 @@ var i18n = {
     },
     'ko-KR': {
         searchNodes: '노드 검색',
-        inputPlaceholder: '키워드를 입력하여 노드 이름, 속성 또는 값을 검색...',
+        inputPlaceholder: '키워드를 입력하여 노드 이름, ID, 속성 또는 값을 검색...',
         closeButton: '닫기 (Esc)',
         noResults: '일치하는 노드를 찾을 수 없습니다',
         foundNodes: '{0}개의 노드, {1}개의 일치 항목을 찾았습니다',
         nodeTitle: '노드 제목',
         nodeType: '노드 유형',
+        nodeId: '노드 ID',
         widget: '위젯',
         value: '값',
         property: '속성',
@@ -177,6 +184,7 @@ var i18n = {
         moreMatches: '... {0}개 더 일치',
         nodeLabel: '노드: ',
         typeLabel: '유형: ',
+        nodeIdLabel: 'ID: ',
         widgetLabel: '위젯: ',
         valueLabel: '값: ',
         propertyLabel: '속성: ',
@@ -204,12 +212,13 @@ var i18n = {
     },
     'ru-RU': {
         searchNodes: 'Поиск узлов',
-        inputPlaceholder: 'Введите ключевые слова для поиска имен узлов, свойств или значений...',
+        inputPlaceholder: 'Введите ключевые слова для поиска имен узлов, ID, свойств или значений...',
         closeButton: 'Закрыть (Esc)',
         noResults: 'Совпадающие узлы не найдены',
         foundNodes: 'Найдено {0} узлов, {1} совпадений',
         nodeTitle: 'Заголовок узла',
         nodeType: 'Тип узла',
+        nodeId: 'ID узла',
         widget: 'Виджет',
         value: 'Значение',
         property: 'Свойство',
@@ -221,6 +230,7 @@ var i18n = {
         moreMatches: '... еще {0} совпадений',
         nodeLabel: 'Узел: ',
         typeLabel: 'Тип: ',
+        nodeIdLabel: 'ID: ',
         widgetLabel: 'Виджет: ',
         valueLabel: 'Значение: ',
         propertyLabel: 'Свойство: ',
@@ -456,7 +466,20 @@ app.registerExtension({
                             });
                         }
 
-                        // 3. 搜索控件名称和值（安全访问）
+                        // 3. 搜索节点ID
+                        if (node.id !== undefined && node.id !== null) {
+                            var nodeIdStr = String(node.id);
+                            if (nodeIdStr.toLowerCase().includes(keywordLower)) {
+                                matches.push({
+                                    type: 'node_id',
+                                    name: t('nodeId'),
+                                    value: node.id,
+                                    display: t('nodeIdLabel') + nodeIdStr
+                                });
+                            }
+                        }
+
+                        // 4. 搜索控件名称和值（安全访问）
                         try {
                             if (node.widgets && Array.isArray(node.widgets)) {
                                 node.widgets.forEach(function(widget, index) {
@@ -499,7 +522,7 @@ app.registerExtension({
                             console.debug("[MechaBaby NodeSearch] 访问节点控件时出错:", widgetsError);
                         }
 
-                        // 4. 搜索节点属性（安全访问）
+                        // 5. 搜索节点属性（安全访问）
                         try {
                             if (node.properties && typeof node.properties === 'object') {
                                 Object.keys(node.properties).forEach(function(propName) {
