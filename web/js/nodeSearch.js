@@ -1,25 +1,25 @@
 /**
  * ComfyUI MechaBaby Node Search Extension
  * 
- * 功能说明：
+ * 功能说明�?
  * 1. 节点名称搜索定位 - 支持节点标题和类型的搜索
- * 2. 节点属性搜索 - 搜索控件名称、控件值、属性名称、属性值
- * 3. 快捷键支持 - Ctrl+F 快速打开搜索对话框
+ * 2. 节点属性搜�?- 搜索控件名称、控件值、属性名称、属性�?
+ * 3. 快捷键支�?- Ctrl+F 快速打开搜索对话�?
  * 4. 键盘导航 - 支持上下箭头键选择，Enter 跳转，Esc 关闭
  * 
  * 技术实现：
  * - 使用 ComfyUI Extension API (app.registerExtension)
- * - 访问 app.graph._nodes 获取所有节点
+ * - 访问 app.graph._nodes 获取所有节�?
  * - 使用 app.canvas.centerOnNode() 实现节点定位
  * - 创建自定义对话框 UI 显示搜索结果
  * 
- * 依赖：
+ * 依赖�?
  * - ComfyUI 核心 API (app, app.graph, app.canvas)
  * - LiteGraph API (LGraphCanvas)
  * 
  * @file nodeSearch.js
  * @author MechaBaby
- * @version 1.3.1
+ * @version 1.3.2
  */
 
 import { app } from "../../../scripts/app.js";
@@ -28,7 +28,7 @@ import { app } from "../../../scripts/app.js";
 var i18n = {
     'zh-CN': {
         searchNodes: '搜索节点',
-        inputPlaceholder: '输入关键词搜索节点名称、ID、属性名称或值...',
+        inputPlaceholder: '输入关键词搜索节点名称、ID、属性名称或�?..',
         closeButton: '关闭 (Esc)',
         noResults: '未找到匹配的节点',
         foundNodes: '找到 {0} 个节点，{1} 个匹配项',
@@ -36,40 +36,40 @@ var i18n = {
         nodeType: '节点类型',
         nodeId: '节点ID',
         widget: '控件',
-        value: '值',
-        property: '属性',
-        propertyValue: '属性值',
+        value: '�?,
+        property: '属�?,
+        propertyValue: '属性�?,
         unknownNode: '未知节点',
         errorNode: '错误节点',
-        nodeMayNotLoaded: '节点可能未正确加载',
-        matches: '{0} 个匹配',
+        nodeMayNotLoaded: '节点可能未正确加�?,
+        matches: '{0} 个匹�?,
         moreMatches: '... 还有 {0} 个匹配项',
         nodeLabel: '节点: ',
         typeLabel: '类型: ',
         nodeIdLabel: 'ID: ',
         widgetLabel: '控件: ',
-        valueLabel: '值: ',
-        propertyLabel: '属性: ',
-        propertyValueLabel: '属性值: ',
-        nodeMayNotLoadedHint: ' | ⚠️ 节点可能未正确加载',
+        valueLabel: '�? ',
+        propertyLabel: '属�? ',
+        propertyValueLabel: '属性�? ',
+        nodeMayNotLoadedHint: ' | ⚠️ 节点可能未正确加�?,
         settings: '设置',
         nodeSearchSettings: '节点搜索设置',
         language: '语言',
-        shortcut: '快捷键',
+        shortcut: '快捷�?,
         save: '保存',
         cancel: '取消',
         selectLanguage: '选择语言',
-        selectShortcut: '设置快捷键',
-        currentShortcut: '当前快捷键: ',
-        pressKey: '按下您想要的快捷键组合...',
-        invalidShortcut: '无效的快捷键，请至少包含 Ctrl/Cmd 和一个按键',
+        selectShortcut: '设置快捷�?,
+        currentShortcut: '当前快捷�? ',
+        pressKey: '按下您想要的快捷键组�?..',
+        invalidShortcut: '无效的快捷键，请至少包含 Ctrl/Cmd 和一个按�?,
         shortcutSaved: '快捷键已保存',
-        languageSaved: '语言已保存，请刷新页面',
-        autoDetect: '自动检测',
+        languageSaved: '语言已保存，请刷新页�?,
+        autoDetect: '自动检�?,
         chinese: '中文',
         english: 'English',
-        japanese: '日本語',
-        korean: '한국어',
+        japanese: '日本�?,
+        korean: '한국�?,
         russian: 'Русский'
     },
     'en-US': {
@@ -114,100 +114,100 @@ var i18n = {
         autoDetect: 'Auto Detect',
         chinese: '中文',
         english: 'English',
-        japanese: '日本語',
-        korean: '한국어',
+        japanese: '日本�?,
+        korean: '한국�?,
         russian: 'Русский'
     },
     'ja-JP': {
-        searchNodes: 'ノード検索',
+        searchNodes: 'ノード検�?,
         inputPlaceholder: 'キーワードを入力してノード名、ID、プロパティ、または値を検索...',
-        closeButton: '閉じる (Esc)',
+        closeButton: '閉じ�?(Esc)',
         noResults: '一致するノードが見つかりません',
-        foundNodes: '{0} 個のノード、{1} 個の一致が見つかりました',
-        nodeTitle: 'ノードタイトル',
+        foundNodes: '{0} 個のノード、{1} 個の一致が見つかりまし�?,
+        nodeTitle: 'ノードタイト�?,
         nodeType: 'ノードタイプ',
         nodeId: 'ノードID',
         widget: 'ウィジェット',
-        value: '値',
-        property: 'プロパティ',
-        propertyValue: 'プロパティ値',
+        value: '�?,
+        property: 'プロパテ�?,
+        propertyValue: 'プロパティ�?,
         unknownNode: '不明なノード',
         errorNode: 'エラーノード',
         nodeMayNotLoaded: 'ノードが正しく読み込まれていない可能性があります',
-        matches: '{0} 個の一致',
-        moreMatches: '... あと {0} 個の一致',
-        nodeLabel: 'ノード: ',
-        typeLabel: 'タイプ: ',
+        matches: '{0} 個の一�?,
+        moreMatches: '... あと {0} 個の一�?,
+        nodeLabel: 'ノー�? ',
+        typeLabel: 'タイ�? ',
         nodeIdLabel: 'ID: ',
         widgetLabel: 'ウィジェット: ',
-        valueLabel: '値: ',
-        propertyLabel: 'プロパティ: ',
-        propertyValueLabel: 'プロパティ値: ',
+        valueLabel: '�? ',
+        propertyLabel: 'プロパテ�? ',
+        propertyValueLabel: 'プロパティ�? ',
         nodeMayNotLoadedHint: ' | ⚠️ ノードが正しく読み込まれていない可能性があります',
         settings: '設定',
         nodeSearchSettings: 'NodeSearch 設定',
-        language: '言語',
-        shortcut: 'ショートカット',
+        language: '言�?,
+        shortcut: 'ショートカッ�?,
         save: '保存',
-        cancel: 'キャンセル',
+        cancel: 'キャンセ�?,
         selectLanguage: '言語を選択',
         selectShortcut: 'ショートカットを設定',
         currentShortcut: '現在のショートカット: ',
         pressKey: '希望のショートカットキーの組み合わせを押してください...',
         invalidShortcut: '無効なショートカットです。Ctrl/Cmdと少なくとも1つのキーを含めてください',
-        shortcutSaved: 'ショートカットが保存されました',
-        languageSaved: '言語が保存されました。ページを更新してください',
+        shortcutSaved: 'ショートカットが保存されまし�?,
+        languageSaved: '言語が保存されました。ページを更新してくださ�?,
         autoDetect: '自動検出',
         chinese: '中文',
         english: 'English',
-        japanese: '日本語',
-        korean: '한국어',
+        japanese: '日本�?,
+        korean: '한국�?,
         russian: 'Русский'
     },
     'ko-KR': {
-        searchNodes: '노드 검색',
-        inputPlaceholder: '키워드를 입력하여 노드 이름, ID, 속성 또는 값을 검색...',
+        searchNodes: '노드 검�?,
+        inputPlaceholder: '키워드를 입력하여 노드 이름, ID, 속성 또는 값을 검�?..',
         closeButton: '닫기 (Esc)',
-        noResults: '일치하는 노드를 찾을 수 없습니다',
-        foundNodes: '{0}개의 노드, {1}개의 일치 항목을 찾았습니다',
+        noResults: '일치하는 노드�?찾을 �?없습니다',
+        foundNodes: '{0}개의 노드, {1}개의 일치 항목�?찾았습니�?,
         nodeTitle: '노드 제목',
         nodeType: '노드 유형',
         nodeId: '노드 ID',
         widget: '위젯',
-        value: '값',
+        value: '�?,
         property: '속성',
-        propertyValue: '속성 값',
-        unknownNode: '알 수 없는 노드',
+        propertyValue: '속성 �?,
+        unknownNode: '�?�?없는 노드',
         errorNode: '오류 노드',
-        nodeMayNotLoaded: '노드가 제대로 로드되지 않았을 수 있습니다',
+        nodeMayNotLoaded: '노드가 제대�?로드되지 않았�?�?있습니다',
         matches: '{0}개의 일치',
-        moreMatches: '... {0}개 더 일치',
+        moreMatches: '... {0}�?�?일치',
         nodeLabel: '노드: ',
         typeLabel: '유형: ',
         nodeIdLabel: 'ID: ',
         widgetLabel: '위젯: ',
-        valueLabel: '값: ',
+        valueLabel: '�? ',
         propertyLabel: '속성: ',
-        propertyValueLabel: '속성 값: ',
-        nodeMayNotLoadedHint: ' | ⚠️ 노드가 제대로 로드되지 않았을 수 있습니다',
+        propertyValueLabel: '속성 �? ',
+        nodeMayNotLoadedHint: ' | ⚠️ 노드가 제대�?로드되지 않았�?�?있습니다',
         settings: '설정',
         nodeSearchSettings: 'NodeSearch 설정',
         language: '언어',
-        shortcut: '단축키',
-        save: '저장',
+        shortcut: '단축�?,
+        save: '저�?,
         cancel: '취소',
         selectLanguage: '언어 선택',
-        selectShortcut: '단축키 설정',
-        currentShortcut: '현재 단축키: ',
-        pressKey: '원하는 단축키 조합을 누르세요...',
-        invalidShortcut: '잘못된 단축키입니다. Ctrl/Cmd와 최소 하나의 키를 포함하세요',
+        selectShortcut: '단축�?설정',
+        currentShortcut: '현재 단축�? ',
+        pressKey: '원하�?단축�?조합�?누르세요...',
+        invalidShortcut: '잘못�?단축키입니다. Ctrl/Cmd와 최소 하나�?키를 포함하세�?,
         shortcutSaved: '단축키가 저장되었습니다',
-        languageSaved: '언어가 저장되었습니다. 페이지를 새로고침하세요',
+        languageSaved: '언어가 저장되었습니다. 페이지�?새로고침하세�?,
         autoDetect: '자동 감지',
         chinese: '中文',
         english: 'English',
-        japanese: '日本語',
-        korean: '한국어',
+        japanese: '日本�?,
+        korean: '한국�?,
         russian: 'Русский'
     },
     'ru-RU': {
@@ -252,13 +252,13 @@ var i18n = {
         autoDetect: 'Автоопределение',
         chinese: '中文',
         english: 'English',
-        japanese: '日本語',
-        korean: '한국어',
+        japanese: '日本�?,
+        korean: '한국�?,
         russian: 'Русский'
     }
 };
 
-// 语言代码映射（将浏览器语言代码映射到支持的语言）
+// 语言代码映射（将浏览器语言代码映射到支持的语言�?
 var langMap = {
     'zh': 'zh-CN',
     'zh-CN': 'zh-CN',
@@ -294,7 +294,7 @@ var config = {
         }
         return false;
     },
-    // 获取当前快捷键
+    // 获取当前快捷�?
     getShortcut: function() {
         var saved = localStorage.getItem('mechababy.nodeSearch.shortcut');
         if (saved) {
@@ -306,7 +306,7 @@ var config = {
         }
         return { ctrl: true, key: 'f' }; // 默认 Ctrl+F
     },
-    // 设置快捷键
+    // 设置快捷�?
     setShortcut: function(shortcut) {
         try {
             localStorage.setItem('mechababy.nodeSearch.shortcut', JSON.stringify(shortcut));
@@ -334,12 +334,12 @@ var config = {
     }
 };
 
-// 获取当前语言的文本
+// 获取当前语言的文�?
 function t(key) {
     var lang = config.getLanguage();
     var texts = i18n[lang] || i18n['en-US'];
     var text = texts[key] || i18n['en-US'][key] || key;
-    // 简单的格式化（支持 {0}, {1} 等占位符）
+    // 简单的格式化（支持 {0}, {1} 等占位符�?
     if (arguments.length > 1) {
         for (var i = 1; i < arguments.length; i++) {
             text = text.replace('{' + (i - 1) + '}', arguments[i]);
@@ -348,15 +348,15 @@ function t(key) {
     return text;
 }
 
-// 模块级变量，用于在不同 hook 之间共享
+// 模块级变量，用于在不�?hook 之间共享
 var nodeSearchState = {
     searchDialog: null,
     searchResults: [],
     currentResultIndex: -1,
     keyboardHandlerBound: false,
-    openSearchDialog: null,  // 将在 setup 中设置
+    openSearchDialog: null,  // 将在 setup 中设�?
     currentHandler: null,    // 当前快捷键处理器
-    settingsDialog: null     // 设置对话框
+    settingsDialog: null     // 设置对话�?
 };
 
 app.registerExtension({
@@ -418,7 +418,7 @@ app.registerExtension({
 
         /**
          * 搜索节点（包括名称、属性名称、属性值）
-         * @param {string} keyword - 搜索关键词
+         * @param {string} keyword - 搜索关键�?
          */
         function searchNodes(keyword) {
             if (!keyword || keyword.trim() === "") {
@@ -428,10 +428,10 @@ app.registerExtension({
             var keywordLower = keyword.toLowerCase().trim();
             var results = [];
 
-            // 搜索工作流中的节点
+            // 搜索工作流中的节�?
             if (app.graph && app.graph._nodes) {
                 app.graph._nodes.forEach(function(node) {
-                    // 使用 try-catch 保护，避免红色报错节点导致搜索中断
+                    // 使用 try-catch 保护，避免红色报错节点导致搜索中�?
                     try {
                         // 检查节点是否有效（红色报错节点可能缺少某些属性）
                         if (!node) return;
@@ -439,7 +439,7 @@ app.registerExtension({
                         const matches = [];
                         let nodeTitle = "";
                         
-                        // 安全地获取节点标题
+                        // 安全地获取节点标�?
                         try {
                             nodeTitle = node.getTitle ? node.getTitle() : (node.title || node.type || "");
                         } catch (e) {
@@ -479,7 +479,7 @@ app.registerExtension({
                             }
                         }
 
-                        // 4. 搜索控件名称和值（安全访问）
+                        // 4. 搜索控件名称和值（安全访问�?
                         try {
                             if (node.widgets && Array.isArray(node.widgets)) {
                                 node.widgets.forEach(function(widget, index) {
@@ -501,7 +501,7 @@ app.registerExtension({
                                             });
                                         }
                                         
-                                        // 搜索控件值（转换为字符串）
+                                        // 搜索控件值（转换为字符串�?
                                         const valueStr = String(widgetValue);
                                         if (valueStr && valueStr.toLowerCase().includes(keywordLower) && widgetName) {
                                             matches.push({
@@ -512,17 +512,17 @@ app.registerExtension({
                                             });
                                         }
                                     } catch (widgetError) {
-                                        // 单个控件出错不影响其他控件
-                                        console.debug("[MechaBaby NodeSearch] 搜索控件时出错:", widgetError);
+                                        // 单个控件出错不影响其他控�?
+                                        console.debug("[MechaBaby NodeSearch] 搜索控件时出�?", widgetError);
                                     }
                                 });
                             }
                         } catch (widgetsError) {
-                            // 控件访问出错，继续搜索其他属性
-                            console.debug("[MechaBaby NodeSearch] 访问节点控件时出错:", widgetsError);
+                            // 控件访问出错，继续搜索其他属�?
+                            console.debug("[MechaBaby NodeSearch] 访问节点控件时出�?", widgetsError);
                         }
 
-                        // 5. 搜索节点属性（安全访问）
+                        // 5. 搜索节点属性（安全访问�?
                         try {
                             if (node.properties && typeof node.properties === 'object') {
                                 Object.keys(node.properties).forEach(function(propName) {
@@ -530,7 +530,7 @@ app.registerExtension({
                                         var propValue = node.properties[propName];
                                         var propValueStr = String(propValue);
                                         
-                                        // 搜索属性名称
+                                        // 搜索属性名�?
                                         if (propName && propName.toLowerCase().includes(keywordLower)) {
                                             matches.push({
                                                 type: 'property_name',
@@ -540,7 +540,7 @@ app.registerExtension({
                                             });
                                         }
                                         
-                                        // 搜索属性值
+                                        // 搜索属性�?
                                         if (propValueStr && propValueStr.toLowerCase().includes(keywordLower)) {
                                             matches.push({
                                                 type: 'property_value',
@@ -550,7 +550,7 @@ app.registerExtension({
                                             });
                                         }
                                     } catch (propError) {
-                                        // 单个属性出错不影响其他属性
+                                        // 单个属性出错不影响其他属�?
                                         console.debug("[MechaBaby NodeSearch] 搜索属性时出错:", propError);
                                     }
                                 });
@@ -560,7 +560,7 @@ app.registerExtension({
                             console.debug("[MechaBaby NodeSearch] 访问节点属性时出错:", propertiesError);
                         }
 
-                        // 如果有匹配，添加到结果
+                        // 如果有匹配，添加到结�?
                         if (matches.length > 0) {
                             results.push({
                                 node: node,
@@ -569,7 +569,7 @@ app.registerExtension({
                                 nodeId: node.id,
                                 matches: matches,
                                 matchCount: matches.length,
-                                isAvailableNode: false // 工作流中的节点
+                                isAvailableNode: false // 工作流中的节�?
                             });
                         }
                     } catch (nodeError) {
@@ -594,11 +594,11 @@ app.registerExtension({
                                         }],
                                         matchCount: 1,
                                         isAvailableNode: false,
-                                        hasError: true // 标记为有错误的节点
+                                        hasError: true // 标记为有错误的节�?
                                     });
                                 }
                             } catch (e) {
-                                // 完全无法处理，跳过
+                                // 完全无法处理，跳�?
                             }
                         }
                     }
@@ -617,18 +617,18 @@ app.registerExtension({
             }
             if (!node) return;
             
-            // 跳转到节点
+            // 跳转到节�?
             app.canvas.centerOnNode(node);
             
             // 选中节点
             app.canvas.selectNode(node);
             
-            // 添加金黄色闪烁高亮效果
+            // 添加金黄色闪烁高亮效�?
             highlightNode(node);
         }
         
         /**
-         * 高亮闪烁节点（金黄色效果）
+         * 高亮闪烁节点（金黄色效果�?
          */
         function highlightNode(node) {
             if (!node) return;
@@ -637,7 +637,7 @@ app.registerExtension({
             var originalColor = node.color;
             var originalBgColor = node.bgcolor;
             
-            // 金黄色高亮颜色
+            // 金黄色高亮颜�?
             var highlightColor = "#FFD700";
             var highlightBgColor = "#4a3d00";
             
@@ -669,12 +669,12 @@ app.registerExtension({
                 setTimeout(flash, flashInterval);
             }
             
-            // 开始闪烁
+            // 开始闪�?
             flash();
         }
 
         /**
-         * 创建搜索对话框
+         * 创建搜索对话�?
          */
         function createSearchDialog() {
             if (searchDialog) {
@@ -715,7 +715,7 @@ app.registerExtension({
             `;
             dialog.appendChild(title);
             
-            // 搜索输入框
+            // 搜索输入�?
             const inputContainer = document.createElement('div');
             inputContainer.style.cssText = 'margin-bottom: 15px;';
             
@@ -840,6 +840,7 @@ app.registerExtension({
                     (function(index) {
                         var result = searchResults[index];
                         var item = document.createElement('div');
+                        item.setAttribute('data-result-index', index);
                         item.style.cssText = 'padding: 12px; border-bottom: 1px solid #3a3a3a; cursor: pointer; background: ' + (index === currentResultIndex ? '#3a3a3a' : 'transparent') + '; transition: background 0.2s;';
                         item.addEventListener('mouseenter', function() {
                             if (index !== currentResultIndex) {
@@ -852,8 +853,10 @@ app.registerExtension({
                             }
                         });
                         item.addEventListener('click', function() {
+                            currentResultIndex = index;
+                            updateResultsList();
                             if (result.hasError) {
-                                // 错误节点，尝试跳转
+                                // 错误节点，尝试跳�?
                                 if (result.node) {
                                     try {
                                         jumpToNode(result.node);
@@ -862,7 +865,7 @@ app.registerExtension({
                                     }
                                 }
                             } else {
-                                // 跳转到节点
+                                // 跳转到节�?
                                 jumpToNode(result.node);
                                 closeDialog();
                             }
@@ -885,13 +888,13 @@ app.registerExtension({
                         type.style.cssText = 'color: ' + (result.hasError ? '#ff8888' : '#888') + '; font-size: 12px; margin-bottom: 8px;';
                         item.appendChild(type);
 
-                        // 匹配项列表（最多显示3个）
+                        // 匹配项列表（最多显�?个）
                         var matchesList = document.createElement('div');
                         var displayMatches = result.matches.slice(0, 3);
                         for (var j = 0; j < displayMatches.length; j++) {
                             var match = displayMatches[j];
                             var matchItem = document.createElement('div');
-                            matchItem.textContent = '  • ' + match.display;
+                            matchItem.textContent = '  �?' + match.display;
                             matchItem.style.cssText = 'color: #aaa; font-size: 12px; margin-left: 10px; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;';
                             matchesList.appendChild(matchItem);
                         }
@@ -905,6 +908,19 @@ app.registerExtension({
 
                         container.appendChild(item);
                     })(idx);
+                }
+                
+                // 自动滚动到当前选中的项
+                if (currentResultIndex >= 0 && currentResultIndex < searchResults.length) {
+                    setTimeout(function() {
+                        var selectedItem = container.querySelector('[data-result-index="' + currentResultIndex + '"]');
+                        if (selectedItem) {
+                            selectedItem.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'nearest'
+                            });
+                        }
+                    }, 0);
                 }
             }
 
@@ -924,14 +940,14 @@ app.registerExtension({
                 }
             });
 
-            // 初始化
+            // 初始�?
             updateResultsList();
 
             return dialog;
         }
 
         /**
-         * 打开搜索对话框
+         * 打开搜索对话�?
          */
         function openSearchDialog() {
             if (!searchDialog) {
@@ -971,7 +987,7 @@ app.registerExtension({
          * 绑定快捷键监听器（支持自定义快捷键）
          */
         function bindKeyboardShortcut() {
-            // 移除旧的监听器
+            // 移除旧的监听�?
             if (nodeSearchState.currentHandler) {
                 document.removeEventListener('keydown', nodeSearchState.currentHandler, true);
                 window.removeEventListener('keydown', nodeSearchState.currentHandler, true);
@@ -983,18 +999,18 @@ app.registerExtension({
             var shortcut = config.getShortcut();
             
             var handler = function(e) {
-                // 检查是否匹配自定义快捷键
+                // 检查是否匹配自定义快捷�?
                 if (checkShortcutMatch(e, shortcut)) {
                     // 如果输入框有焦点，不拦截（让用户可以在搜索框中输入）
                     var activeElement = document.activeElement;
                     if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
-                        // 如果焦点在搜索对话框的输入框中，不拦截
+                        // 如果焦点在搜索对话框的输入框中，不拦�?
                         if (searchDialog && searchDialog.contains(activeElement)) {
                             return;
                         }
                     }
                     
-                    // 阻止默认行为（浏览器搜索）
+                    // 阻止默认行为（浏览器搜索�?
                     e.preventDefault();
                     e.stopPropagation();
                     e.stopImmediatePropagation();
@@ -1003,7 +1019,7 @@ app.registerExtension({
                 }
             };
             
-            // 保存处理器引用
+            // 保存处理器引�?
             nodeSearchState.currentHandler = handler;
             
             // 在多个地方绑定，确保能捕获到
@@ -1030,7 +1046,7 @@ app.registerExtension({
         }
 
         /**
-         * 创建设置对话框
+         * 创建设置对话�?
          */
         function createSettingsDialog() {
             if (nodeSearchState.settingsDialog) {
@@ -1068,7 +1084,7 @@ app.registerExtension({
             `;
             dialog.appendChild(title);
 
-            // 快捷键设置
+            // 快捷键设�?
             var shortcutSection = document.createElement('div');
             shortcutSection.style.cssText = 'margin-bottom: 20px;';
             
@@ -1116,12 +1132,12 @@ app.registerExtension({
                 e.preventDefault();
                 e.stopPropagation();
 
-                // 忽略某些特殊键
+                // 忽略某些特殊�?
                 if (e.key === 'Tab' || e.key === 'Escape' || e.key === 'Enter') {
                     return;
                 }
 
-                // 至少需要 Ctrl/Cmd 和一个按键
+                // 至少需�?Ctrl/Cmd 和一个按�?
                 if (!e.ctrlKey && !e.metaKey && !e.altKey) {
                     shortcutInput.value = t('invalidShortcut');
                     return;
@@ -1159,13 +1175,13 @@ app.registerExtension({
             `;
             saveBtn.addEventListener('click', function() {
                 if (capturedShortcut) {
-                    // 验证快捷键
+                    // 验证快捷�?
                     if (!capturedShortcut.key || (!capturedShortcut.ctrl && !capturedShortcut.meta && !capturedShortcut.alt)) {
                         alert(t('invalidShortcut'));
                         return;
                     }
                     config.setShortcut(capturedShortcut);
-                    bindKeyboardShortcut(); // 重新绑定快捷键
+                    bindKeyboardShortcut(); // 重新绑定快捷�?
                     alert(t('shortcutSaved'));
                     closeSettingsDialog();
                 } else {
@@ -1211,7 +1227,7 @@ app.registerExtension({
         }
 
         /**
-         * 打开设置对话框
+         * 打开设置对话�?
          */
         function openSettingsDialog() {
             if (!nodeSearchState.settingsDialog) {
@@ -1231,7 +1247,7 @@ app.registerExtension({
         // 保存函数引用到模块级变量
         nodeSearchState.openSettingsDialog = openSettingsDialog;
         
-        // 立即绑定快捷键
+        // 立即绑定快捷�?
         bindKeyboardShortcut();
         
         // 延迟再次绑定，确保在所有扩展加载后
@@ -1239,10 +1255,10 @@ app.registerExtension({
             bindKeyboardShortcut();
         }, 1000);
 
-        // 右键菜单通过 getCanvasMenuItems hook 添加（新的 Context Menu API）
+        // 右键菜单通过 getCanvasMenuItems hook 添加（新�?Context Menu API�?
 
         var currentShortcut = config.formatShortcut();
-        console.log("[MechaBaby NodeSearch] 扩展已加载 - 按 " + currentShortcut + " 打开搜索");
+        console.log("[MechaBaby NodeSearch] 扩展已加�?- �?" + currentShortcut + " 打开搜索");
         console.log("[MechaBaby NodeSearch] 当前语言: " + config.getLanguage());
     }
 });

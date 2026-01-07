@@ -77,17 +77,16 @@ MIT License
 
 ## Changelog
 
-### v1.3.1 (2026-01-07)
-- Added node ID search functionality
-- Updated input placeholder to mention node ID search
-- Enhanced search to include node ID matching
-
-### v1.3.0 (2026-01-07)
+### v1.3.2 (2026-01-07)
 - Added customizable keyboard shortcut support
 - Added multi-language support (Chinese, English, Japanese, Korean, Russian)
 - Auto-detect browser language on first load
 - Added settings dialog for shortcut and language configuration
 - Port teleport menu items now support multi-language
+- Added node ID search functionality
+- Updated input placeholder to mention node ID search
+- Enhanced search to include node ID matching
+- Improved keyboard navigation: search results list now auto-scrolls to keep the selected item visible
 
 ### v1.2.0 (2026-01-07)
 - Added golden flash highlight effect when jumping to nodes
