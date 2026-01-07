@@ -10,7 +10,7 @@ Enhance ComfyUI workflow by providing powerful node search, attribute search, an
 - 📝 **Attribute Search**: Search node attribute names and values (including numbers and text)
 - 🔗 **Port Teleport**: Right-click on node ports to jump directly to connected nodes
 - ⌨️ **Keyboard Shortcuts**: Press `Ctrl+F` to quickly open the search dialog
-- 🎯 **Smart Matching**: Supports searching node titles, types, widget names, widget values, property names, and property values
+- 🎯 **Smart Matching**: Supports searching node titles, types, node IDs, widget names, widget values, property names, and property values
 - ✨ **Golden Flash Highlight**: Target node flashes with golden color after jumping for better visibility
 - 🔄 **Easy Use Support**: Supports jumping between `easy getNode` and `easy setNode` nodes (comfyui-easy-use extension)
 
@@ -30,10 +30,19 @@ Enhance ComfyUI workflow by providing powerful node search, attribute search, an
 Enter keywords in the search box to search for:
 - Node titles
 - Node types
+- Node IDs
 - Widget names (e.g., "steps", "cfg", "seed")
 - Widget values (e.g., "20", "7.5", "prompt text")
 - Property names
 - Property values
+
+### Extension Settings
+
+Access the extension settings through:
+1. **Right-click Menu**: Right-click on the canvas and select "⚙️ NodeSearch Settings"
+2. In the settings menu, you can:
+   - Change the interface language (Chinese, English, Japanese, Korean, Russian)
+   - Customize the keyboard shortcut (default: Ctrl+F)
 
 **Search Tips**:
 - Use arrow keys (↑↓) to navigate through the results list
@@ -68,27 +77,26 @@ MIT License
 
 ## Changelog
 
-### v1.3.1 (2025-01-08)
+### v1.3.1 (2026-01-07)
 - Added node ID search functionality
 - Updated input placeholder to mention node ID search
 - Enhanced search to include node ID matching
 
-### v1.3.0 (2025-01-08)
+### v1.3.0 (2026-01-07)
 - Added customizable keyboard shortcut support
 - Added multi-language support (Chinese, English, Japanese, Korean, Russian)
 - Auto-detect browser language on first load
 - Added settings dialog for shortcut and language configuration
 - Port teleport menu items now support multi-language
-- Settings menu renamed to "NodeSearch Settings" for clarity
 
-### v1.2.0 (2025-01-07)
+### v1.2.0 (2026-01-07)
 - Added golden flash highlight effect when jumping to nodes
 - Added support for `easy getNode` and `easy setNode` jumping (comfyui-easy-use extension)
 - Migrated to new ComfyUI Context Menu API
 - Auto-focus on search input when opening dialog
 - Code optimization and bug fixes
 
-### v1.0.0 (2025-01-05)
+### v1.0.0 (2026-01-06)
 - Initial release
 - Node search functionality
 - Attribute search functionality
