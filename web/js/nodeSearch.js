@@ -618,10 +618,39 @@ app.registerExtension({
             if (!node) return;
             
             // 跳转到节�?
-            app.canvas.centerOnNode(node);
-            
-            // 选中节点
+            // 先选中节点，确保节点状态稳定
             app.canvas.selectNode(node);
+            
+            // 使用 requestAnimationFrame 确保在正确的渲染时机执行
+            requestAnimationFrame(function() {
+                // 跳转到节点（居中显示）
+                app.canvas.centerOnNode(node);
+                
+                // 再次选中节点，确保选中状态正确
+                app.canvas.selectNode(node);
+                
+                // 使用 requestAnimationFrame 再次居中，确保在缩放状态下也正确
+                requestAnimationFrame(function() {
+                    app.canvas.centerOnNode(node);
+                    app.canvas.selectNode(node);
+                    
+                    // 如果画布有缩放，再次居中以确保计算正确
+                    if (app.canvas.zoom && app.canvas.zoom !== 1) {
+                        setTimeout(function() {
+                            app.canvas.centerOnNode(node);
+                            app.canvas.selectNode(node);
+                            if (app.canvas.setDirty) {
+                                app.canvas.setDirty(true, true);
+                            }
+                        }, 50);
+                    } else {
+                        // 强制刷新画布
+                        if (app.canvas.setDirty) {
+                            app.canvas.setDirty(true, true);
+                        }
+                    }
+                });
+            });
             
             // 添加金黄色闪烁高亮效�?
             highlightNode(node);

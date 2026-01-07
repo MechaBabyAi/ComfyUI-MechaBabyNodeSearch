@@ -165,15 +165,44 @@ app.registerExtension({
 
         /**
          * 跳转到节点并高亮闪烁
+         * 使用更可靠的方法确保在所有缩放级别下都能正确居中
          */
         function jumpToNode(node) {
             if (!node) return;
             
-            // 跳转到节点
-            app.canvas.centerOnNode(node);
-            
-            // 选中节点
+            // 先选中节点，确保节点状态稳定
             app.canvas.selectNode(node);
+            
+            // 使用 requestAnimationFrame 确保在正确的渲染时机执行
+            requestAnimationFrame(function() {
+                // 跳转到节点（居中显示）
+                app.canvas.centerOnNode(node);
+                
+                // 再次选中节点，确保选中状态正确
+                app.canvas.selectNode(node);
+                
+                // 使用 requestAnimationFrame 再次居中，确保在缩放状态下也正确
+                requestAnimationFrame(function() {
+                    app.canvas.centerOnNode(node);
+                    app.canvas.selectNode(node);
+                    
+                    // 如果画布有缩放，再次居中以确保计算正确
+                    if (app.canvas.zoom && app.canvas.zoom !== 1) {
+                        setTimeout(function() {
+                            app.canvas.centerOnNode(node);
+                            app.canvas.selectNode(node);
+                            if (app.canvas.setDirty) {
+                                app.canvas.setDirty(true, true);
+                            }
+                        }, 50);
+                    } else {
+                        // 强制刷新画布
+                        if (app.canvas.setDirty) {
+                            app.canvas.setDirty(true, true);
+                        }
+                    }
+                });
+            });
             
             // 添加金黄色闪烁高亮效果
             highlightNode(node);
@@ -374,7 +403,12 @@ app.registerExtension({
                                     teleportOptions.push({
                                         content: related.label || '→ ' + targetNodeTitle,
                                         callback: function() {
-                                            jumpToNode(related.node);
+                                            // 使用 requestAnimationFrame 确保菜单完全关闭后再跳转
+                                            requestAnimationFrame(function() {
+                                                requestAnimationFrame(function() {
+                                                    jumpToNode(related.node);
+                                                });
+                                            });
                                         }
                                     });
                                 });
@@ -396,7 +430,12 @@ app.registerExtension({
                                             teleportOptions.push({
                                                 content: '← ' + portName + ' → ' + targetNodeTitle,
                                                 callback: function() {
-                                                    jumpToNode(conn.node);
+                                                    // 使用 requestAnimationFrame 确保菜单完全关闭后再跳转
+                                                    requestAnimationFrame(function() {
+                                                        requestAnimationFrame(function() {
+                                                            jumpToNode(conn.node);
+                                                        });
+                                                    });
                                                 }
                                             });
                                         });
@@ -415,7 +454,12 @@ app.registerExtension({
                                             teleportOptions.push({
                                                 content: portName + ' → ' + targetNodeTitle,
                                                 callback: function() {
-                                                    jumpToNode(conn.node);
+                                                    // 使用 requestAnimationFrame 确保菜单完全关闭后再跳转
+                                                    requestAnimationFrame(function() {
+                                                        requestAnimationFrame(function() {
+                                                            jumpToNode(conn.node);
+                                                        });
+                                                    });
                                                 }
                                             });
                                         });
@@ -467,6 +511,7 @@ app.registerExtension({
                         e.stopPropagation();
                         
                         // 如果只有一个连接，直接跳转
+                        // 直接调用，与搜索跳转和节点右键跳转保持一致
                         if (connectedNodes.length === 1) {
                             jumpToNode(connectedNodes[0].node);
                         } else {
@@ -475,13 +520,18 @@ app.registerExtension({
                                 return {
                                     content: conn.node.getTitle ? conn.node.getTitle() : (conn.node.title || conn.node.type),
                                     callback: function() {
-                                        jumpToNode(conn.node);
+                                        // 使用 requestAnimationFrame 确保菜单完全关闭后再跳转
+                                        requestAnimationFrame(function() {
+                                            requestAnimationFrame(function() {
+                                                jumpToNode(conn.node);
+                                            });
+                                        });
                                     }
                                 };
                             });
                             
                             // 显示上下文菜单
-                            const menu = new LiteGraph.ContextMenu(menuOptions);
+                            var menu = new LiteGraph.ContextMenu(menuOptions);
                             menu.show(e);
                         }
                     }
@@ -495,6 +545,7 @@ app.registerExtension({
                         if (easyRelatedNodes.length === 1) {
                             e.preventDefault();
                             e.stopPropagation();
+                            // 直接调用，与搜索跳转和节点右键跳转保持一致
                             jumpToNode(easyRelatedNodes[0].node);
                         }
                         // 多个关联节点时，通过右键菜单处理（已经在 getNodeMenuOptions 中添加）
