@@ -348,10 +348,10 @@ app.registerExtension({
             // 检查是否有连接的端口
             var hasInputConnections = node.inputs && node.inputs.some(function(input) { 
                 return input && input.link !== null && input.link !== undefined;
-            );
+            });
             var hasOutputConnections = node.outputs && node.outputs.some(function(output) { 
                 return output && output.links && output.links.length > 0;
-            );
+            });
 
             // 检查是否是 easy getNode/setNode
             var isEasyGetNode = node.type === 'easy getNode';
