@@ -1,33 +1,12 @@
-/**
- * ComfyUI MechaBaby Node Search Extension
- * 
- * 功能说明�?
- * 1. 节点名称搜索定位 - 支持节点标题和类型的搜索
- * 2. 节点属性搜�?- 搜索控件名称、控件值、属性名称、属性�?
- * 3. 快捷键支�?- Ctrl+F 快速打开搜索对话�?
- * 4. 键盘导航 - 支持上下箭头键选择，Enter 跳转，Esc 关闭
- * 
- * 技术实现：
- * - 使用 ComfyUI Extension API (app.registerExtension)
- * - 访问 app.graph._nodes 获取所有节�?
- * - 使用 app.canvas.centerOnNode() 实现节点定位
- * - 创建自定义对话框 UI 显示搜索结果
- * 
- * 依赖�?
- * - ComfyUI 核心 API (app, app.graph, app.canvas)
- * - LiteGraph API (LGraphCanvas)
- * 
- * @file nodeSearch.js
- * @author MechaBaby
- * @version 1.3.2
- */
-
 import { app } from "../../../scripts/app.js";
 
-// 多语言资源（重写为干净的 UTF-8 文本，避免语法错误）
 var i18n = {
     'zh-CN': {
         searchNodes: '搜索节点',
+        extensionSettings: 'MechaBaby 扩展配置',
+        portTeleportSettings: '端口传送配置',
+        portTeleportFollowLang: '语言跟随节点搜索设置',
+        portTeleportNoExtra: '当前无其他可配置项',
         inputPlaceholder: '输入关键词搜索节点名称、ID、属性名称或值...',
         closeButton: '关闭 (Esc)',
         noResults: '未找到匹配的节点',
@@ -74,6 +53,10 @@ var i18n = {
     },
     'en-US': {
         searchNodes: 'Search Nodes',
+        extensionSettings: 'MechaBaby Extension Settings',
+        portTeleportSettings: 'Port Teleport Settings',
+        portTeleportFollowLang: 'Language follows NodeSearch setting',
+        portTeleportNoExtra: 'No additional settings currently',
         inputPlaceholder: 'Enter keywords to search node names, IDs, properties, or values...',
         closeButton: 'Close (Esc)',
         noResults: 'No matching nodes found',
@@ -120,6 +103,10 @@ var i18n = {
     },
     'ja-JP': {
         searchNodes: 'ノード検索',
+        extensionSettings: 'MechaBaby 拡張設定',
+        portTeleportSettings: 'ポートテレポート設定',
+        portTeleportFollowLang: '言語は NodeSearch 設定に従います',
+        portTeleportNoExtra: '現在追加の設定はありません',
         inputPlaceholder: 'キーワードを入力してノード名、ID、プロパティまたは値を検索...',
         closeButton: '閉じる (Esc)',
         noResults: '一致するノードが見つかりません',
@@ -166,6 +153,10 @@ var i18n = {
     },
     'ko-KR': {
         searchNodes: '노드 검색',
+        extensionSettings: 'MechaBaby 확장 설정',
+        portTeleportSettings: '포트 텔레포트 설정',
+        portTeleportFollowLang: '언어는 NodeSearch 설정을 따릅니다',
+        portTeleportNoExtra: '추가 설정 없음',
         inputPlaceholder: '키워드를 입력하여 노드 이름, ID, 속성 또는 값을 검색...',
         closeButton: '닫기 (Esc)',
         noResults: '일치하는 노드를 찾을 수 없습니다',
@@ -212,6 +203,10 @@ var i18n = {
     },
     'ru-RU': {
         searchNodes: 'Поиск узлов',
+        extensionSettings: 'Настройки MechaBaby',
+        portTeleportSettings: 'Настройки Port Teleport',
+        portTeleportFollowLang: 'Язык следует настройке NodeSearch',
+        portTeleportNoExtra: 'Дополнительных настроек пока нет',
         inputPlaceholder: 'Введите ключевые слова для поиска имен узлов, ID, свойств или значений...',
         closeButton: 'Закрыть (Esc)',
         noResults: 'Совпадающие узлы не найдены',
@@ -258,7 +253,7 @@ var i18n = {
     }
 };
 
-// 语言代码映射（将浏览器语言代码映射到支持的语言�?
+
 var langMap = {
     'zh': 'zh-CN',
     'zh-CN': 'zh-CN',
@@ -274,19 +269,19 @@ var langMap = {
     'ru-RU': 'ru-RU'
 };
 
-// 配置管理
+
 var config = {
-    // 获取当前语言
+    
     getLanguage: function() {
         var saved = localStorage.getItem('mechababy.nodeSearch.language');
         if (saved && i18n[saved]) {
             return saved;
         }
-        // 自动检测浏览器语言
+        
         var browserLang = navigator.language || navigator.userLanguage || 'en-US';
         return langMap[browserLang] || langMap[browserLang.split('-')[0]] || 'en-US';
     },
-    // 设置语言
+    
     setLanguage: function(lang) {
         if (i18n[lang]) {
             localStorage.setItem('mechababy.nodeSearch.language', lang);
@@ -294,7 +289,7 @@ var config = {
         }
         return false;
     },
-    // 获取当前快捷�?
+    
     getShortcut: function() {
         var saved = localStorage.getItem('mechababy.nodeSearch.shortcut');
         if (saved) {
@@ -304,9 +299,9 @@ var config = {
                 return { ctrl: true, key: 'f' };
             }
         }
-        return { ctrl: true, key: 'f' }; // 默认 Ctrl+F
+        return { ctrl: true, key: 'f' }; 
     },
-    // 设置快捷�?
+    
     setShortcut: function(shortcut) {
         try {
             localStorage.setItem('mechababy.nodeSearch.shortcut', JSON.stringify(shortcut));
@@ -315,7 +310,7 @@ var config = {
             return false;
         }
     },
-    // 格式化快捷键显示
+    
     formatShortcut: function(shortcut) {
         if (!shortcut) shortcut = this.getShortcut();
         var parts = [];
@@ -334,12 +329,12 @@ var config = {
     }
 };
 
-// 获取当前语言的文�?
+
 function t(key) {
     var lang = config.getLanguage();
     var texts = i18n[lang] || i18n['en-US'];
     var text = texts[key] || i18n['en-US'][key] || key;
-    // 简单的格式化（支持 {0}, {1} 等占位符�?
+    
     if (arguments.length > 1) {
         for (var i = 1; i < arguments.length; i++) {
             text = text.replace('{' + (i - 1) + '}', arguments[i]);
@@ -348,25 +343,25 @@ function t(key) {
     return text;
 }
 
-// 模块级变量，用于在不�?hook 之间共享
+
 var nodeSearchState = {
     searchDialog: null,
     searchResults: [],
     currentResultIndex: -1,
     keyboardHandlerBound: false,
-    openSearchDialog: null,  // 将在 setup 中设�?
-    currentHandler: null,    // 当前快捷键处理器
-    settingsDialog: null     // 设置对话�?
+    openSearchDialog: null,  
+    currentHandler: null,    
+    settingsDialog: null     
 };
 
 app.registerExtension({
     name: "MechaBaby.NodeSearch",
     
-    // 新的 Context Menu API hook
+    
     getCanvasMenuItems: function() {
         var currentShortcut = config.formatShortcut();
-        return [
-            null, // separator
+        var menuItems = [
+            null,
             {
                 content: '🔍 ' + t('searchNodes') + ' (' + currentShortcut + ')',
                 callback: function() {
@@ -375,39 +370,65 @@ app.registerExtension({
                     }
                 }
             },
-            null, // separator
+            null,
             {
-                content: '⚙️ ' + t('nodeSearchSettings'),
+                content: '⚙️ ' + t('extensionSettings'),
                 has_submenu: true,
                 submenu: {
                     options: [
                         {
-                            content: t('language'),
+                            content: '🔍 ' + t('nodeSearchSettings'),
                             has_submenu: true,
                             submenu: {
                                 options: [
-                                    { content: t('autoDetect'), callback: function() { config.setLanguage(config.getLanguage()); } },
-                                    null,
-                                    { content: '🇨🇳 ' + t('chinese'), callback: function() { config.setLanguage('zh-CN'); alert(t('languageSaved')); } },
-                                    { content: '🇺🇸 ' + t('english'), callback: function() { config.setLanguage('en-US'); alert(t('languageSaved')); } },
-                                    { content: '🇯🇵 ' + t('japanese'), callback: function() { config.setLanguage('ja-JP'); alert(t('languageSaved')); } },
-                                    { content: '🇰🇷 ' + t('korean'), callback: function() { config.setLanguage('ko-KR'); alert(t('languageSaved')); } },
-                                    { content: '🇷🇺 ' + t('russian'), callback: function() { config.setLanguage('ru-RU'); alert(t('languageSaved')); } }
+                                    {
+                                        content: t('language'),
+                                        has_submenu: true,
+                                        submenu: {
+                                            options: [
+                                                { content: t('autoDetect'), callback: function() { config.setLanguage(config.getLanguage()); } },
+                                                null,
+                                                { content: '🇨🇳 ' + t('chinese'), callback: function() { config.setLanguage('zh-CN'); alert(t('languageSaved')); } },
+                                                { content: '🇺🇸 ' + t('english'), callback: function() { config.setLanguage('en-US'); alert(t('languageSaved')); } },
+                                                { content: '🇯🇵 ' + t('japanese'), callback: function() { config.setLanguage('ja-JP'); alert(t('languageSaved')); } },
+                                                { content: '🇰🇷 ' + t('korean'), callback: function() { config.setLanguage('ko-KR'); alert(t('languageSaved')); } },
+                                                { content: '🇷🇺 ' + t('russian'), callback: function() { config.setLanguage('ru-RU'); alert(t('languageSaved')); } }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        content: t('shortcut'),
+                                        callback: function() {
+                                            if (nodeSearchState.openSettingsDialog) {
+                                                nodeSearchState.openSettingsDialog();
+                                            }
+                                        }
+                                    }
                                 ]
-                            }
-                        },
-                        {
-                            content: t('shortcut'),
-                            callback: function() {
-                                if (nodeSearchState.openSettingsDialog) {
-                                    nodeSearchState.openSettingsDialog();
-                                }
                             }
                         }
                     ]
                 }
             }
         ];
+
+        // 合并端口传送的菜单项（如果存在）
+        if (typeof window !== 'undefined' && window.getPortTeleportMenuItems) {
+            var portTeleportItems = window.getPortTeleportMenuItems();
+            if (portTeleportItems && portTeleportItems.length > 0) {
+                for (var i = 0; i < menuItems.length; i++) {
+                    if (menuItems[i] && menuItems[i].content && (menuItems[i].content.indexOf('MechaBaby') >= 0 || menuItems[i].content.indexOf(t('extensionSettings')) >= 0)) {
+                        if (menuItems[i].submenu && menuItems[i].submenu.options) {
+                            menuItems[i].submenu.options.push(null);
+                            menuItems[i].submenu.options = menuItems[i].submenu.options.concat(portTeleportItems);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        return menuItems;
     },
     
     setup: function() {
@@ -416,10 +437,7 @@ app.registerExtension({
         var currentResultIndex = nodeSearchState.currentResultIndex;
         var keyboardHandlerBound = nodeSearchState.keyboardHandlerBound;
 
-        /**
-         * 搜索节点（包括名称、属性名称、属性值）
-         * @param {string} keyword - 搜索关键�?
-         */
+        
         function searchNodes(keyword) {
             if (!keyword || keyword.trim() === "") {
                 return [];
@@ -428,25 +446,25 @@ app.registerExtension({
             var keywordLower = keyword.toLowerCase().trim();
             var results = [];
 
-            // 搜索工作流中的节�?
+            
             if (app.graph && app.graph._nodes) {
                 app.graph._nodes.forEach(function(node) {
-                    // 使用 try-catch 保护，避免红色报错节点导致搜索中�?
+                    
                     try {
-                        // 检查节点是否有效（红色报错节点可能缺少某些属性）
+                        
                         if (!node) return;
                         
                         const matches = [];
                         let nodeTitle = "";
                         
-                        // 安全地获取节点标�?
+                        
                         try {
                             nodeTitle = node.getTitle ? node.getTitle() : (node.title || node.type || "");
                         } catch (e) {
                             nodeTitle = node.type || node.title || t('unknownNode');
                         }
                         
-                        // 1. 搜索节点标题
+                        
                         if (nodeTitle && nodeTitle.toLowerCase().includes(keywordLower)) {
                             matches.push({
                                 type: 'node_title',
@@ -456,7 +474,7 @@ app.registerExtension({
                             });
                         }
 
-                        // 2. 搜索节点类型
+                        
                         if (node.type && node.type.toLowerCase().includes(keywordLower)) {
                             matches.push({
                                 type: 'node_type',
@@ -466,7 +484,7 @@ app.registerExtension({
                             });
                         }
 
-                        // 3. 搜索节点ID
+                        
                         if (node.id !== undefined && node.id !== null) {
                             var nodeIdStr = String(node.id);
                             if (nodeIdStr.toLowerCase().includes(keywordLower)) {
@@ -479,7 +497,7 @@ app.registerExtension({
                             }
                         }
 
-                        // 4. 搜索控件名称和值（安全访问�?
+                        
                         try {
                             if (node.widgets && Array.isArray(node.widgets)) {
                                 node.widgets.forEach(function(widget, index) {
@@ -491,7 +509,7 @@ app.registerExtension({
                                             ? node.widgets_values[index] 
                                             : (widget.value !== undefined ? widget.value : '');
                                         
-                                        // 搜索控件名称
+                                        
                                         if (widgetName && widgetName.toLowerCase().includes(keywordLower)) {
                                             matches.push({
                                                 type: 'widget_name',
@@ -501,7 +519,7 @@ app.registerExtension({
                                             });
                                         }
                                         
-                                        // 搜索控件值（转换为字符串�?
+                                        
                                         const valueStr = String(widgetValue);
                                         if (valueStr && valueStr.toLowerCase().includes(keywordLower) && widgetName) {
                                             matches.push({
@@ -512,17 +530,17 @@ app.registerExtension({
                                             });
                                         }
                                     } catch (widgetError) {
-                                        // 单个控件出错不影响其他控�?
+                                        
                                         console.debug("[MechaBaby NodeSearch] 搜索控件时出�?", widgetError);
                                     }
                                 });
                             }
                         } catch (widgetsError) {
-                            // 控件访问出错，继续搜索其他属�?
+                            
                             console.debug("[MechaBaby NodeSearch] 访问节点控件时出�?", widgetsError);
                         }
 
-                        // 5. 搜索节点属性（安全访问�?
+                        
                         try {
                             if (node.properties && typeof node.properties === 'object') {
                                 Object.keys(node.properties).forEach(function(propName) {
@@ -530,7 +548,7 @@ app.registerExtension({
                                         var propValue = node.properties[propName];
                                         var propValueStr = String(propValue);
                                         
-                                        // 搜索属性名�?
+                                        
                                         if (propName && propName.toLowerCase().includes(keywordLower)) {
                                             matches.push({
                                                 type: 'property_name',
@@ -540,7 +558,7 @@ app.registerExtension({
                                             });
                                         }
                                         
-                                        // 搜索属性�?
+                                        
                                         if (propValueStr && propValueStr.toLowerCase().includes(keywordLower)) {
                                             matches.push({
                                                 type: 'property_value',
@@ -550,17 +568,17 @@ app.registerExtension({
                                             });
                                         }
                                     } catch (propError) {
-                                        // 单个属性出错不影响其他属�?
+                                        
                                         console.debug("[MechaBaby NodeSearch] 搜索属性时出错:", propError);
                                     }
                                 });
                             }
                         } catch (propertiesError) {
-                            // 属性访问出错，继续处理
+                            
                             console.debug("[MechaBaby NodeSearch] 访问节点属性时出错:", propertiesError);
                         }
 
-                        // 如果有匹配，添加到结�?
+                        
                         if (matches.length > 0) {
                             results.push({
                                 node: node,
@@ -569,14 +587,14 @@ app.registerExtension({
                                 nodeId: node.id,
                                 matches: matches,
                                 matchCount: matches.length,
-                                isAvailableNode: false // 工作流中的节�?
+                                isAvailableNode: false 
                             });
                         }
                     } catch (nodeError) {
-                        // 节点处理出错，记录但继续搜索其他节点
+                        
                         const nodeTypeStr = (node && node.type) ? node.type : "未知";
                         console.debug("[MechaBaby NodeSearch] 搜索节点时出错（可能是未安装的节点）:", nodeError, nodeTypeStr);
-                        // 即使节点出错，也尝试搜索节点类型（如果可用）
+                        
                         if (node && node.type) {
                             try {
                                 const nodeType = node.type;
@@ -594,11 +612,11 @@ app.registerExtension({
                                         }],
                                         matchCount: 1,
                                         isAvailableNode: false,
-                                        hasError: true // 标记为有错误的节�?
+                                        hasError: true 
                                     });
                                 }
                             } catch (e) {
-                                // 完全无法处理，跳�?
+                                
                             }
                         }
                     }
@@ -608,46 +626,42 @@ app.registerExtension({
             return results;
         }
 
-        /**
-         * 跳转到节点并高亮
-         */
+        
         function jumpToNode(node, matchIndex) {
             if (matchIndex === undefined) {
                 matchIndex = 0;
             }
             if (!node) return;
             
-            // 跳转到节�?
+            
             app.canvas.centerOnNode(node);
             
-            // 选中节点
+            
             app.canvas.selectNode(node);
             
-            // 添加金黄色闪烁高亮效�?
+            
             highlightNode(node);
         }
         
-        /**
-         * 高亮闪烁节点（金黄色效果�?
-         */
+        
         function highlightNode(node) {
             if (!node) return;
             
-            // 保存原始颜色
+            
             var originalColor = node.color;
             var originalBgColor = node.bgcolor;
             
-            // 金黄色高亮颜�?
+            
             var highlightColor = "#FFD700";
             var highlightBgColor = "#4a3d00";
             
             var flashCount = 0;
-            var maxFlashes = 6; // 闪烁3次（6次切换）
-            var flashInterval = 150; // 每次闪烁间隔150ms
+            var maxFlashes = 6; 
+            var flashInterval = 150; 
             
             function flash() {
                 if (flashCount >= maxFlashes) {
-                    // 恢复原始颜色
+                    
                     node.color = originalColor;
                     node.bgcolor = originalBgColor;
                     app.canvas.setDirty(true, true);
@@ -655,11 +669,11 @@ app.registerExtension({
                 }
                 
                 if (flashCount % 2 === 0) {
-                    // 高亮
+                    
                     node.color = highlightColor;
                     node.bgcolor = highlightBgColor;
                 } else {
-                    // 恢复
+                    
                     node.color = originalColor;
                     node.bgcolor = originalBgColor;
                 }
@@ -669,13 +683,11 @@ app.registerExtension({
                 setTimeout(flash, flashInterval);
             }
             
-            // 开始闪�?
+            
             flash();
         }
 
-        /**
-         * 创建搜索对话�?
-         */
+        
         function createSearchDialog() {
             if (searchDialog) {
                 return searchDialog;
@@ -701,7 +713,7 @@ app.registerExtension({
                 'box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);' +
                 "font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;";
 
-            // 标题
+            
             const title = document.createElement('div');
             title.textContent = '🔍 ' + t('searchNodes');
             title.style.cssText =
@@ -713,7 +725,7 @@ app.registerExtension({
                 'padding-bottom: 10px;';
             dialog.appendChild(title);
             
-            // 搜索输入�?
+            
             const inputContainer = document.createElement('div');
             inputContainer.style.cssText = 'margin-bottom: 15px;';
             
@@ -763,7 +775,7 @@ app.registerExtension({
             inputContainer.appendChild(input);
             dialog.appendChild(inputContainer);
 
-            // 结果列表容器
+            
             const resultsContainer = document.createElement('div');
             resultsContainer.id = 'search-results-container';
             resultsContainer.style.cssText =
@@ -775,7 +787,7 @@ app.registerExtension({
                 'background: #1a1a1a;';
             dialog.appendChild(resultsContainer);
 
-            // 提示信息
+            
             const info = document.createElement('div');
             info.id = 'search-info';
             info.style.cssText =
@@ -785,7 +797,7 @@ app.registerExtension({
                 'text-align: center;';
             dialog.appendChild(info);
 
-            // 关闭按钮
+            
             const closeBtn = document.createElement('button');
             closeBtn.textContent = t('closeButton');
             closeBtn.style.cssText =
@@ -806,7 +818,7 @@ app.registerExtension({
             });
             dialog.appendChild(closeBtn);
 
-            // 更新结果列表
+            
             function updateResultsList() {
                 const container = resultsContainer;
                 container.innerHTML = '';
@@ -849,7 +861,7 @@ app.registerExtension({
                             currentResultIndex = index;
                             updateResultsList();
                             if (result.hasError) {
-                                // 错误节点，尝试跳�?
+                                
                                 if (result.node) {
                                     try {
                                         jumpToNode(result.node);
@@ -858,20 +870,20 @@ app.registerExtension({
                                     }
                                 }
                             } else {
-                                // 跳转到节�?
+                                
                                 jumpToNode(result.node);
                                 closeDialog();
                             }
                         });
 
-                        // 节点标题
+                        
                         var title = document.createElement('div');
                         var statusBadge = result.hasError ? ' [' + t('errorNode') + ']' : '';
                         title.textContent = result.nodeTitle + statusBadge + ' (' + t('matches', result.matchCount) + ')';
                         title.style.cssText = 'font-weight: bold; color: ' + (result.hasError ? '#ff4a4a' : '#4a9eff') + '; margin-bottom: 5px; font-size: 14px;';
                         item.appendChild(title);
 
-                        // 节点类型
+                        
                         var type = document.createElement('div');
                         var typeText = t('typeLabel') + result.nodeType;
                         if (result.hasError) {
@@ -881,7 +893,7 @@ app.registerExtension({
                         type.style.cssText = 'color: ' + (result.hasError ? '#ff8888' : '#888') + '; font-size: 12px; margin-bottom: 8px;';
                         item.appendChild(type);
 
-                        // 匹配项列表（最多显�?个）
+                        
                         var matchesList = document.createElement('div');
                         var displayMatches = result.matches.slice(0, 3);
                         for (var j = 0; j < displayMatches.length; j++) {
@@ -903,7 +915,7 @@ app.registerExtension({
                     })(idx);
                 }
                 
-                // 自动滚动到当前选中的项
+                
                 if (currentResultIndex >= 0 && currentResultIndex < searchResults.length) {
                     setTimeout(function() {
                         var selectedItem = container.querySelector('[data-result-index="' + currentResultIndex + '"]');
@@ -926,29 +938,27 @@ app.registerExtension({
                 currentResultIndex = -1;
             }
 
-            // 点击外部关闭
+            
             dialog.addEventListener('click', function(e) {
                 if (e.target === dialog) {
                     closeDialog();
                 }
             });
 
-            // 初始�?
+            
             updateResultsList();
 
             return dialog;
         }
 
-        /**
-         * 打开搜索对话�?
-         */
+        
         function openSearchDialog() {
             if (!searchDialog) {
                 searchDialog = createSearchDialog();
                 document.body.appendChild(searchDialog);
             }
             
-            // 每次打开都聚焦输入框
+            
             setTimeout(function() {
                 var input = searchDialog.querySelector('input');
                 if (input) {
@@ -958,12 +968,10 @@ app.registerExtension({
             }, 50);
         }
         
-        // 保存函数引用到模块级变量，供 getCanvasMenuItems hook 使用
+        
         nodeSearchState.openSearchDialog = openSearchDialog;
 
-        /**
-         * 检查快捷键是否匹配
-         */
+        
         function checkShortcutMatch(e, shortcut) {
             if (!shortcut) return false;
             
@@ -976,11 +984,9 @@ app.registerExtension({
             return ctrlMatch && altMatch && shiftMatch && metaMatch && keyMatch;
         }
 
-        /**
-         * 绑定快捷键监听器（支持自定义快捷键）
-         */
+        
         function bindKeyboardShortcut() {
-            // 移除旧的监听�?
+            
             if (nodeSearchState.currentHandler) {
                 document.removeEventListener('keydown', nodeSearchState.currentHandler, true);
                 window.removeEventListener('keydown', nodeSearchState.currentHandler, true);
@@ -992,18 +998,18 @@ app.registerExtension({
             var shortcut = config.getShortcut();
             
             var handler = function(e) {
-                // 检查是否匹配自定义快捷�?
+                
                 if (checkShortcutMatch(e, shortcut)) {
-                    // 如果输入框有焦点，不拦截（让用户可以在搜索框中输入）
+                    
                     var activeElement = document.activeElement;
                     if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
-                        // 如果焦点在搜索对话框的输入框中，不拦�?
+                        
                         if (searchDialog && searchDialog.contains(activeElement)) {
                             return;
                         }
                     }
                     
-                    // 阻止默认行为（浏览器搜索�?
+                    
                     e.preventDefault();
                     e.stopPropagation();
                     e.stopImmediatePropagation();
@@ -1012,22 +1018,22 @@ app.registerExtension({
                 }
             };
             
-            // 保存处理器引�?
+            
             nodeSearchState.currentHandler = handler;
             
-            // 在多个地方绑定，确保能捕获到
-            // 1. document 级别（捕获阶段，优先级最高）
+            
+            
             document.addEventListener('keydown', handler, true);
             
-            // 2. window 级别
+            
             window.addEventListener('keydown', handler, true);
             
-            // 3. 画布级别（如果可用）
+            
             if (app.canvas) {
                 if (app.canvas.canvas) {
                     app.canvas.canvas.addEventListener('keydown', handler, true);
                 }
-                // 等待画布完全加载
+                
                 setTimeout(function() {
                     if (app.canvas && app.canvas.canvas) {
                         app.canvas.canvas.addEventListener('keydown', handler, true);
@@ -1038,9 +1044,7 @@ app.registerExtension({
             keyboardHandlerBound = true;
         }
 
-        /**
-         * 创建设置对话�?
-         */
+        
         function createSettingsDialog() {
             if (nodeSearchState.settingsDialog) {
                 return nodeSearchState.settingsDialog;
@@ -1063,7 +1067,7 @@ app.registerExtension({
                 'box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);' +
                 "font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;";
 
-            // 标题
+            
             var title = document.createElement('div');
             title.textContent = '⚙️ ' + t('settings');
             title.style.cssText =
@@ -1075,7 +1079,7 @@ app.registerExtension({
                 'padding-bottom: 10px;';
             dialog.appendChild(title);
 
-            // 快捷键设�?
+            
             var shortcutSection = document.createElement('div');
             shortcutSection.style.cssText = 'margin-bottom: 20px;';
             
@@ -1122,12 +1126,12 @@ app.registerExtension({
                 e.preventDefault();
                 e.stopPropagation();
 
-                // 忽略某些特殊�?
+                
                 if (e.key === 'Tab' || e.key === 'Escape' || e.key === 'Enter') {
                     return;
                 }
 
-                // 至少需�?Ctrl/Cmd 和一个按�?
+                
                 if (!e.ctrlKey && !e.metaKey && !e.altKey) {
                     shortcutInput.value = t('invalidShortcut');
                     return;
@@ -1148,7 +1152,7 @@ app.registerExtension({
             shortcutSection.appendChild(shortcutInput);
             dialog.appendChild(shortcutSection);
 
-            // 按钮
+            
             var buttonContainer = document.createElement('div');
             buttonContainer.style.cssText = 'display: flex; gap: 10px; justify-content: flex-end;';
 
@@ -1164,13 +1168,13 @@ app.registerExtension({
                 'font-size: 14px;';
             saveBtn.addEventListener('click', function() {
                 if (capturedShortcut) {
-                    // 验证快捷�?
+                    
                     if (!capturedShortcut.key || (!capturedShortcut.ctrl && !capturedShortcut.meta && !capturedShortcut.alt)) {
                         alert(t('invalidShortcut'));
                         return;
                     }
                     config.setShortcut(capturedShortcut);
-                    bindKeyboardShortcut(); // 重新绑定快捷�?
+                    bindKeyboardShortcut(); 
                     alert(t('shortcutSaved'));
                     closeSettingsDialog();
                 } else {
@@ -1203,7 +1207,7 @@ app.registerExtension({
                 capturedShortcut = null;
             }
 
-            // 点击外部关闭
+            
             dialog.addEventListener('click', function(e) {
                 if (e.target === dialog) {
                     closeSettingsDialog();
@@ -1214,16 +1218,14 @@ app.registerExtension({
             return dialog;
         }
 
-        /**
-         * 打开设置对话�?
-         */
+        
         function openSettingsDialog() {
             if (!nodeSearchState.settingsDialog) {
                 nodeSearchState.settingsDialog = createSettingsDialog();
                 document.body.appendChild(nodeSearchState.settingsDialog);
             }
             
-            // 聚焦快捷键输入框
+            
             setTimeout(function() {
                 var input = nodeSearchState.settingsDialog.querySelector('input');
                 if (input) {
@@ -1232,18 +1234,16 @@ app.registerExtension({
             }, 50);
         }
 
-        // 保存函数引用到模块级变量
+        
         nodeSearchState.openSettingsDialog = openSettingsDialog;
         
-        // 立即绑定快捷�?
+        
         bindKeyboardShortcut();
         
-        // 延迟再次绑定，确保在所有扩展加载后
+        
         setTimeout(function() {
             bindKeyboardShortcut();
-        }, 1000);
-
-        // 右键菜单通过 getCanvasMenuItems hook 添加（新�?Context Menu API�?
+        }, 1000);       
 
         var currentShortcut = config.formatShortcut();
         console.log("[MechaBaby NodeSearch] 扩展已加载 - 使用 " + currentShortcut + " 打开搜索");
