@@ -10,6 +10,8 @@ Enhance ComfyUI workflow by providing powerful node search, attribute search, an
 - 📝 **Attribute Search**: Search node attribute names and values (including numbers and text)
 - 🔗 **Port Teleport**: Right-click on node ports to jump directly to connected nodes
 - ⚡ **Quick Jump Menu**: Select a node and press the shortcut (default: F1) to quickly view and jump to all connected nodes
+- 📌 **Pin Window**: Pin the quick jump menu to a fixed position for continuous use
+- 👁️ **Auto Show**: When window is pinned, enable auto-show to automatically display jump list when clicking nodes
 - ⏪ **History Navigation**: Navigate jump history using mouse side buttons or customizable keyboard keys
 - 🔄 **Auto Jump**: Automatically jump when port has only one connection (optional)
 - ⌨️ **Keyboard Shortcuts**: Press `Ctrl+F` to quickly open the search dialog
@@ -71,6 +73,18 @@ Access port teleport settings through:
    - **Quick Jump Shortcut**: Set custom shortcut for quick jump menu (default: F1)
    - **Menu Scale**: Adjust quick jump menu scale (50%, 75%, 100%, 125%, 150%, or auto-scale)
 
+### Pin Window and Auto Show
+
+1. **Pin Window**: Click the 📍 button in the quick jump menu header to pin the window to a fixed position
+   - When pinned, the window stays open when jumping to nodes
+   - Window position remains fixed when switching nodes
+   - Click 📌 to unpin the window
+
+2. **Auto Show**: When window is pinned, click the 👁️ button to enable auto-show
+   - When enabled, clicking any node will automatically display the jump list
+   - Click again to disable, returning to manual shortcut mode
+   - Auto-show button only appears when window is pinned
+
 ## Examples
 
 ### Searching Nodes
@@ -93,6 +107,15 @@ Access port teleport settings through:
 MIT License
 
 ## Changelog
+
+### v1.5.0 (2026-01-08)
+- Added pin window feature: pin the quick jump menu to a fixed position
+- Added auto-show feature: when window is pinned, enable auto-show to automatically display jump list when clicking nodes
+- Improved user experience: replaced blocking alert dialogs with non-blocking toast notifications
+- Fixed arrow direction for GET/SET nodes in quick jump menu and right-click menu
+- Fixed Easy Use node display: GET nodes show SET nodes on the left panel, SET nodes show GET nodes on the right panel
+- Fixed "No Connection" display: no longer shows when Easy Use nodes are present
+- Enhanced toast notifications with larger font size and improved visibility
 
 ### v1.4.0 (2026-01-08)
 - Added automatic jump feature: when a port has only one connection, right-click will jump directly without showing menu

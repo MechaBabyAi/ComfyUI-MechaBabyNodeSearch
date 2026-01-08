@@ -270,6 +270,47 @@ var langMap = {
 };
 
 
+function showToast(message, duration) {
+    duration = duration || 2000;
+    var toast = document.createElement("div");
+    toast.style.cssText = 
+        "position: fixed;" +
+        "top: 20px;" +
+        "right: 20px;" +
+        "background: rgba(255, 193, 7, 0.9);" +
+        "backdrop-filter: blur(10px);" +
+        "color: #0c0c0c;" +
+        "padding: 16px 26px;" +
+        "border-radius: 8px;" +
+        "box-shadow: 0 6px 20px rgba(255, 193, 7, 0.5);" +
+        "border: 1px solid rgba(255, 235, 59, 0.6);" +
+        "z-index: 10001;" +
+        "font-size: 18px;" +
+        "font-weight: 600;" +
+        "max-width: 400px;" +
+        "word-wrap: break-word;" +
+        "opacity: 0;" +
+        "transform: translateY(-10px);" +
+        "transition: opacity 0.3s ease, transform 0.3s ease;";
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(function() {
+        toast.style.opacity = "1";
+        toast.style.transform = "translateY(0)";
+    }, 10);
+    
+    setTimeout(function() {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(-10px)";
+        setTimeout(function() {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    }, duration);
+}
+
 var config = {
     
     getLanguage: function() {
@@ -388,11 +429,11 @@ app.registerExtension({
                                             options: [
                                                 { content: t('autoDetect'), callback: function() { config.setLanguage(config.getLanguage()); } },
                                                 null,
-                                                { content: '🇨🇳 ' + t('chinese'), callback: function() { config.setLanguage('zh-CN'); alert(t('languageSaved')); } },
-                                                { content: '🇺🇸 ' + t('english'), callback: function() { config.setLanguage('en-US'); alert(t('languageSaved')); } },
-                                                { content: '🇯🇵 ' + t('japanese'), callback: function() { config.setLanguage('ja-JP'); alert(t('languageSaved')); } },
-                                                { content: '🇰🇷 ' + t('korean'), callback: function() { config.setLanguage('ko-KR'); alert(t('languageSaved')); } },
-                                                { content: '🇷🇺 ' + t('russian'), callback: function() { config.setLanguage('ru-RU'); alert(t('languageSaved')); } }
+                                                { content: '🇨🇳 ' + t('chinese'), callback: function() { config.setLanguage('zh-CN'); showToast(t('languageSaved')); } },
+                                                { content: '🇺🇸 ' + t('english'), callback: function() { config.setLanguage('en-US'); showToast(t('languageSaved')); } },
+                                                { content: '🇯🇵 ' + t('japanese'), callback: function() { config.setLanguage('ja-JP'); showToast(t('languageSaved')); } },
+                                                { content: '🇰🇷 ' + t('korean'), callback: function() { config.setLanguage('ko-KR'); showToast(t('languageSaved')); } },
+                                                { content: '🇷🇺 ' + t('russian'), callback: function() { config.setLanguage('ru-RU'); showToast(t('languageSaved')); } }
                                             ]
                                         }
                                     },
@@ -866,7 +907,7 @@ app.registerExtension({
                                     try {
                                         jumpToNode(result.node);
                                     } catch (e) {
-                                        alert(t('nodeMayNotLoaded') + ': "' + result.nodeTitle + '"');
+                                        showToast(t('nodeMayNotLoaded') + ': "' + result.nodeTitle + '"');
                                     }
                                 }
                             } else {
@@ -1170,12 +1211,12 @@ app.registerExtension({
                 if (capturedShortcut) {
                     
                     if (!capturedShortcut.key || (!capturedShortcut.ctrl && !capturedShortcut.meta && !capturedShortcut.alt)) {
-                        alert(t('invalidShortcut'));
+                        showToast(t('invalidShortcut'));
                         return;
                     }
                     config.setShortcut(capturedShortcut);
                     bindKeyboardShortcut(); 
-                    alert(t('shortcutSaved'));
+                    showToast(t('shortcutSaved'));
                     closeSettingsDialog();
                 } else {
                     closeSettingsDialog();

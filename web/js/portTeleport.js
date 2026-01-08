@@ -98,7 +98,13 @@ var portTeleportI18n = {
         defaultScale: "默认",
         autoScale: "自动（根据画布缩放）",
         autoScaleSet: "菜单缩放已设置为自动（根据画布缩放）",
-        quickJumpTitle: "快速跳转 (ESC关闭)"
+        quickJumpTitle: "快速跳转 (ESC关闭)",
+        pinWindow: "钉住窗口",
+        unpinWindow: "取消钉住",
+        autoShow: "自动显示",
+        autoShowDesc: "开启后，点击节点时自动显示跳转列表（仅在钉住状态下可用）",
+        autoShowEnabled: "自动显示已开启",
+        autoShowDisabled: "自动显示已关闭"
     },
     "en-US": {
         teleportToConnected: "Teleport to Connected Nodes",
@@ -147,7 +153,13 @@ var portTeleportI18n = {
         defaultScale: "Default",
         autoScale: "Auto (based on canvas scale)",
         autoScaleSet: "Menu scale set to auto (based on canvas scale)",
-        quickJumpTitle: "Quick Jump (ESC to close)"
+        quickJumpTitle: "Quick Jump (ESC to close)",
+        pinWindow: "Pin Window",
+        unpinWindow: "Unpin Window",
+        autoShow: "Auto Show",
+        autoShowDesc: "When enabled, clicking a node will automatically show the jump list (only available when pinned)",
+        autoShowEnabled: "Auto show enabled",
+        autoShowDisabled: "Auto show disabled"
     },
     "ja-JP": {
         teleportToConnected: "接続ノードにテレポート",
@@ -187,7 +199,13 @@ var portTeleportI18n = {
         defaultScale: "デフォルト",
         autoScale: "自動（キャンバススケールに基づく）",
         autoScaleSet: "メニュースケールを自動に設定しました（キャンバススケールに基づく）",
-        quickJumpTitle: "クイックジャンプ (ESCで閉じる)"
+        quickJumpTitle: "クイックジャンプ (ESCで閉じる)",
+        pinWindow: "ウィンドウを固定",
+        unpinWindow: "固定を解除",
+        autoShow: "自動表示",
+        autoShowDesc: "有効にすると、ノードをクリックしたときに自動的にジャンプリストを表示します（固定時のみ利用可能）",
+        autoShowEnabled: "自動表示が有効になりました",
+        autoShowDisabled: "自動表示が無効になりました"
     },
     "ko-KR": {
         teleportToConnected: "연결된 노드로 텔레포트",
@@ -227,7 +245,13 @@ var portTeleportI18n = {
         defaultScale: "기본값",
         autoScale: "자동（캔버스 크기에 따라）",
         autoScaleSet: "메뉴 크기가 자동으로 설정되었습니다（캔버스 크기에 따라）",
-        quickJumpTitle: "빠른 점프 (ESC로 닫기)"
+        quickJumpTitle: "빠른 점프 (ESC로 닫기)",
+        pinWindow: "창 고정",
+        unpinWindow: "고정 해제",
+        autoShow: "자동 표시",
+        autoShowDesc: "활성화하면 노드를 클릭할 때 자동으로 점프 목록을 표시합니다（고정 상태에서만 사용 가능）",
+        autoShowEnabled: "자동 표시가 활성화되었습니다",
+        autoShowDisabled: "자동 표시가 비활성화되었습니다"
     },
     "ru-RU": {
         teleportToConnected: "Телепорт к подключенным узлам",
@@ -267,7 +291,13 @@ var portTeleportI18n = {
         defaultScale: "По умолчанию",
         autoScale: "Автоматически (на основе масштаба холста)",
         autoScaleSet: "Масштаб меню установлен автоматически (на основе масштаба холста)",
-        quickJumpTitle: "Быстрый переход (ESC для закрытия)"
+        quickJumpTitle: "Быстрый переход (ESC для закрытия)",
+        pinWindow: "Закрепить окно",
+        unpinWindow: "Открепить окно",
+        autoShow: "Автопоказ",
+        autoShowDesc: "При включении, клик по узлу будет автоматически показывать список переходов (доступно только при закреплении)",
+        autoShowEnabled: "Автопоказ включен",
+        autoShowDisabled: "Автопоказ выключен"
     }
 };
 
@@ -760,7 +790,7 @@ app.registerExtension({
                                     callback: function () {
                                         var current = portTeleportConfig.getAutoJump();
                                         portTeleportConfig.setAutoJump(!current);
-                                        alert(portTeleportT("settingSaved") + ": " + portTeleportT("autoJump") + " = " + (!current ? portTeleportT("enabled") : portTeleportT("disabled")));
+                                        showToast(portTeleportT("settingSaved") + ": " + portTeleportT("autoJump") + " = " + (!current ? portTeleportT("enabled") : portTeleportT("disabled")));
                                     }
                                 },
                                 {
@@ -768,7 +798,7 @@ app.registerExtension({
                                     callback: function () {
                                         var current = portTeleportConfig.getBlockMenu();
                                         portTeleportConfig.setBlockMenu(!current);
-                                        alert(portTeleportT("settingSaved") + ": " + portTeleportT("blockMenu") + " = " + (!current ? portTeleportT("enabled") : portTeleportT("disabled")));
+                                        showToast(portTeleportT("settingSaved") + ": " + portTeleportT("blockMenu") + " = " + (!current ? portTeleportT("enabled") : portTeleportT("disabled")));
                                     }
                                 },
                                 {
@@ -776,7 +806,7 @@ app.registerExtension({
                                     callback: function () {
                                         var current = portTeleportConfig.getKeyboardNav();
                                         portTeleportConfig.setKeyboardNav(!current);
-                                        alert(portTeleportT("settingSaved") + ": " + portTeleportT("keyboardNav") + " = " + (!current ? portTeleportT("enabled") : portTeleportT("disabled")));
+                                        showToast(portTeleportT("settingSaved") + ": " + portTeleportT("keyboardNav") + " = " + (!current ? portTeleportT("enabled") : portTeleportT("disabled")));
                                     }
                                 },
                                 null,
@@ -804,7 +834,7 @@ app.registerExtension({
                                             var key = e.key || e.code;
                                             if (key && key !== "Escape") {
                                                 portTeleportConfig.setBackKey(key);
-                                                alert(portTeleportT("keySaved") + ": " + key);
+                                                showToast(portTeleportT("keySaved") + ": " + key);
                                                 document.body.removeChild(dialog);
                                                 window.removeEventListener("keydown", keyHandler, true);
                                                 keySettingDialogOpen = false;
@@ -842,7 +872,7 @@ app.registerExtension({
                                             var key = e.key || e.code;
                                             if (key && key !== "Escape") {
                                                 portTeleportConfig.setForwardKey(key);
-                                                alert(portTeleportT("keySaved") + ": " + key);
+                                                showToast(portTeleportT("keySaved") + ": " + key);
                                                 document.body.removeChild(dialog);
                                                 window.removeEventListener("keydown", keyHandler, true);
                                                 keySettingDialogOpen = false;
@@ -879,7 +909,7 @@ app.registerExtension({
                                                 if (e.altKey) newKey = "Alt+" + newKey;
                                                 if (e.shiftKey) newKey = "Shift+" + newKey;
                                                 setQuickJumpKey(newKey);
-                                                alert(portTeleportT("shortcutSaved") + newKey);
+                                                showToast(portTeleportT("shortcutSaved") + newKey);
                                                 document.body.removeChild(dialog);
                                                 window.removeEventListener("keydown", keyHandler, true);
                                             } else if (key === "Escape") {
@@ -896,13 +926,13 @@ app.registerExtension({
                                     has_submenu: true,
                                     submenu: {
                                         options: [
-                                            { content: "50%", callback: function() { setQuickJumpMenuScale(0.5); alert(portTeleportT("menuScaleSetTo") + "50%"); } },
-                                            { content: "75%", callback: function() { setQuickJumpMenuScale(0.75); alert(portTeleportT("menuScaleSetTo") + "75%"); } },
-                                            { content: "100% (" + portTeleportT("defaultScale") + ")", callback: function() { setQuickJumpMenuScale(1.0); alert(portTeleportT("menuScaleSetTo") + "100%"); } },
-                                            { content: "125%", callback: function() { setQuickJumpMenuScale(1.25); alert(portTeleportT("menuScaleSetTo") + "125%"); } },
-                                            { content: "150%", callback: function() { setQuickJumpMenuScale(1.5); alert(portTeleportT("menuScaleSetTo") + "150%"); } },
+                                            { content: "50%", callback: function() { setQuickJumpMenuScale(0.5); showToast(portTeleportT("menuScaleSetTo") + "50%"); } },
+                                            { content: "75%", callback: function() { setQuickJumpMenuScale(0.75); showToast(portTeleportT("menuScaleSetTo") + "75%"); } },
+                                            { content: "100% (" + portTeleportT("defaultScale") + ")", callback: function() { setQuickJumpMenuScale(1.0); showToast(portTeleportT("menuScaleSetTo") + "100%"); } },
+                                            { content: "125%", callback: function() { setQuickJumpMenuScale(1.25); showToast(portTeleportT("menuScaleSetTo") + "125%"); } },
+                                            { content: "150%", callback: function() { setQuickJumpMenuScale(1.5); showToast(portTeleportT("menuScaleSetTo") + "150%"); } },
                                             null,
-                                            { content: portTeleportT("autoScale"), callback: function() { localStorage.removeItem("mechababy.portTeleport.quickJumpMenuScale"); alert(portTeleportT("autoScaleSet")); } }
+                                            { content: portTeleportT("autoScale"), callback: function() { localStorage.removeItem("mechababy.portTeleport.quickJumpMenuScale"); showToast(portTeleportT("autoScaleSet")); } }
                                         ]
                                     }
                                 },
@@ -986,7 +1016,7 @@ app.registerExtension({
                         var setter = node.findSetter(node.graph);
                         if (setter) {
                             var constantValue = (node.widgets && node.widgets[0] && node.widgets[0].value) || "";
-                            if (constantValue) relatedNodes.push({ node: setter, label: "→ Set_" + constantValue, direction: "to" });
+                            if (constantValue) relatedNodes.push({ node: setter, label: "← Set_" + constantValue, direction: "to" });
                         }
                     }
                 } else if (node.type === "easy setNode") {
@@ -1112,8 +1142,14 @@ app.registerExtension({
                             if (easyRelatedNodes.length > 0) {
                                     easyRelatedNodes.forEach(function (related) {
                                         var targetNodeTitle = related.node.getTitle ? related.node.getTitle() : related.node.title || related.node.type;
+                                        var menuLabel = related.label || "";
+                                        if (!menuLabel) {
+                                            menuLabel = node.type === "easy getNode" ? "← " + targetNodeTitle : "→ " + targetNodeTitle;
+                                        } else if (node.type === "easy getNode" && menuLabel.startsWith("→")) {
+                                            menuLabel = "←" + menuLabel.substring(1);
+                                        }
                                     teleportOptions.push({
-                                            content: related.label || "→ " + targetNodeTitle,
+                                            content: menuLabel,
                                             callback: function () {
                                             portTeleportFunctions.jumpToNode(related.node);
                                         }
@@ -1636,6 +1672,10 @@ app.registerExtension({
         var quickJumpMenuScale = 1;
         var isDragging = false;
         var dragOffset = { x: 0, y: 0 };
+        var isPinned = false;
+        var pinnedPosition = { x: 0, y: 0 };
+        var autoShowEnabled = false;
+        var lastSelectedNodeId = null;
         
         function getQuickJumpKey() {
             var saved = localStorage.getItem("mechababy.portTeleport.quickJumpKey");
@@ -1675,6 +1715,100 @@ app.registerExtension({
             }
         }
         
+        function getQuickJumpPinned() {
+            var saved = localStorage.getItem("mechababy.portTeleport.quickJumpPinned");
+            return saved === "true";
+        }
+        
+        function setQuickJumpPinned(pinned) {
+            try {
+                localStorage.setItem("mechababy.portTeleport.quickJumpPinned", pinned ? "true" : "false");
+                isPinned = pinned;
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+        
+        function getQuickJumpPinnedPosition() {
+            var saved = localStorage.getItem("mechababy.portTeleport.quickJumpPinnedPosition");
+            if (saved) {
+                try {
+                    var pos = JSON.parse(saved);
+                    return { x: parseFloat(pos.x) || 0, y: parseFloat(pos.y) || 0 };
+                } catch (e) {
+                    return { x: 0, y: 0 };
+                }
+            }
+            return { x: 0, y: 0 };
+        }
+        
+        function setQuickJumpPinnedPosition(x, y) {
+            try {
+                localStorage.setItem("mechababy.portTeleport.quickJumpPinnedPosition", JSON.stringify({ x: x, y: y }));
+                pinnedPosition = { x: x, y: y };
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+        
+        function getQuickJumpAutoShow() {
+            var saved = localStorage.getItem("mechababy.portTeleport.quickJumpAutoShow");
+            return saved === "true";
+        }
+        
+        function setQuickJumpAutoShow(enabled) {
+            try {
+                localStorage.setItem("mechababy.portTeleport.quickJumpAutoShow", enabled ? "true" : "false");
+                autoShowEnabled = enabled;
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+        
+        function showToast(message, duration) {
+            duration = duration || 2000;
+            var toast = document.createElement("div");
+            toast.style.cssText = 
+                "position: fixed;" +
+                "top: 20px;" +
+                "right: 20px;" +
+                "background: rgba(255, 193, 7, 0.9);" +
+                "backdrop-filter: blur(10px);" +
+                "color: #0c0c0c;" +
+                "padding: 16px 26px;" +
+                "border-radius: 8px;" +
+                "box-shadow: 0 6px 20px rgba(255, 193, 7, 0.5);" +
+                "border: 1px solid rgba(255, 235, 59, 0.6);" +
+                "z-index: 10001;" +
+                "font-size: 18px;" +
+                "font-weight: 600;" +
+                "max-width: 400px;" +
+                "word-wrap: break-word;" +
+                "opacity: 0;" +
+                "transform: translateY(-10px);" +
+                "transition: opacity 0.3s ease, transform 0.3s ease;";
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(function() {
+                toast.style.opacity = "1";
+                toast.style.transform = "translateY(0)";
+            }, 10);
+            
+            setTimeout(function() {
+                toast.style.opacity = "0";
+                toast.style.transform = "translateY(-10px)";
+                setTimeout(function() {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, duration);
+        }
+        
         function closeQuickJumpMenu() {
             if (quickJumpMenu && quickJumpMenu.parentNode) {
                 quickJumpMenu.parentNode.removeChild(quickJumpMenu);
@@ -1691,15 +1825,24 @@ app.registerExtension({
                 window._quickJumpMenuDragEndHandler = null;
             }
             isDragging = false;
+            if (!isPinned) {
+                lastSelectedNodeId = null;
+            }
         }
         
         function showQuickJumpMenu(node) {
             if (!node || !app || !app.canvas) return;
             
-            closeQuickJumpMenu();
+            var wasPinned = isPinned;
+            var shouldReuse = wasPinned && quickJumpMenu && quickJumpMenu.parentNode;
+            
+            if (!shouldReuse) {
+                closeQuickJumpMenu();
+            }
             
             var inputPorts = [];
             var outputPorts = [];
+            var easyUseNodes = [];
             
             if (node.inputs && Array.isArray(node.inputs)) {
                 for (var i = 0; i < node.inputs.length; i++) {
@@ -1737,7 +1880,19 @@ app.registerExtension({
                 }
             }
             
-            if (inputPorts.length === 0 && outputPorts.length === 0) {
+            var easyRelatedNodes = getEasyUseRelatedNodes(node);
+            if (easyRelatedNodes && easyRelatedNodes.length > 0) {
+                easyRelatedNodes.forEach(function(related) {
+                    easyUseNodes.push({
+                        node: related.node,
+                        label: related.label || "",
+                        direction: related.direction || "to",
+                        isInput: node.type === "easy getNode"
+                    });
+                });
+            }
+            
+            if (inputPorts.length === 0 && outputPorts.length === 0 && easyUseNodes.length === 0) {
                 return;
             }
             
@@ -1968,14 +2123,35 @@ app.registerExtension({
                 menuY = window.innerHeight / 2;
             }
             
-            quickJumpMenu = document.createElement("div");
+            if (!shouldReuse) {
+                isPinned = getQuickJumpPinned();
+                if (isPinned) {
+                    pinnedPosition = getQuickJumpPinnedPosition();
+                    if (pinnedPosition.x >= 0 && pinnedPosition.y >= 0) {
+                        menuX = pinnedPosition.x;
+                        menuY = pinnedPosition.y;
+                    }
+                }
+                autoShowEnabled = getQuickJumpAutoShow();
+                
+                quickJumpMenu = document.createElement("div");
+            } else {
+                isPinned = getQuickJumpPinned();
+                pinnedPosition = getQuickJumpPinnedPosition();
+                if (pinnedPosition.x >= 0 && pinnedPosition.y >= 0) {
+                    menuX = pinnedPosition.x;
+                    menuY = pinnedPosition.y;
+                }
+                autoShowEnabled = getQuickJumpAutoShow();
+                quickJumpMenu.innerHTML = "";
+            }
             quickJumpMenu.className = "mechababy-quick-jump-menu";
             quickJumpMenu.style.cssText = 
                 "position: fixed;" +
                 "left: " + menuX + "px;" +
                 "top: " + menuY + "px;" +
-                "transform: translate(-50%, -50%) scale(" + quickJumpMenuScale + ");" +
-                "transform-origin: center center;" +
+                "transform: scale(" + quickJumpMenuScale + ");" +
+                "transform-origin: top left;" +
                 "background: var(--comfy-menu-bg, #2a2a2a);" +
                 "border: 1px solid var(--border-color, #666);" +
                 "border-radius: 4px;" +
@@ -2006,6 +2182,109 @@ app.registerExtension({
             headerTitle.style.cssText = "font-size: 11px; color: #888;";
             menuHeader.appendChild(headerTitle);
             
+            var headerButtons = document.createElement("div");
+            headerButtons.style.cssText = "display: flex; align-items: center; gap: 4px;";
+            
+            var pinBtn = document.createElement("span");
+            pinBtn.textContent = isPinned ? "📌" : "📍";
+            pinBtn.title = isPinned ? portTeleportT("unpinWindow") : portTeleportT("pinWindow");
+            pinBtn.style.cssText = 
+                "cursor: pointer;" +
+                "font-size: 14px;" +
+                "color: " + (isPinned ? "#4a9eff" : "#888") + ";" +
+                "width: 20px;" +
+                "height: 20px;" +
+                "display: flex;" +
+                "align-items: center;" +
+                "justify-content: center;" +
+                "border-radius: 2px;";
+            pinBtn.addEventListener("mouseenter", function() {
+                this.style.background = "var(--comfy-menu-bg-hover, rgba(255,255,255,0.1))";
+            });
+            pinBtn.addEventListener("mouseleave", function() {
+                this.style.background = "transparent";
+            });
+            var autoShowBtn = document.createElement("span");
+            autoShowEnabled = getQuickJumpAutoShow();
+            autoShowBtn.textContent = autoShowEnabled ? "👁️" : "👁️‍🗨️";
+            autoShowBtn.title = autoShowEnabled ? portTeleportT("autoShowDisabled") : portTeleportT("autoShowEnabled");
+            autoShowBtn.style.cssText = 
+                "cursor: pointer;" +
+                "font-size: 14px;" +
+                "color: " + (autoShowEnabled ? "#4a9eff" : "#888") + ";" +
+                "width: 20px;" +
+                "height: 20px;" +
+                "display: " + (isPinned ? "flex" : "none") + ";" +
+                "align-items: center;" +
+                "justify-content: center;" +
+                "border-radius: 2px;";
+            autoShowBtn.addEventListener("mouseenter", function() {
+                this.style.background = "var(--comfy-menu-bg-hover, rgba(255,255,255,0.1))";
+            });
+            autoShowBtn.addEventListener("mouseleave", function() {
+                this.style.background = "transparent";
+            });
+            autoShowBtn.addEventListener("click", function(e) {
+                e.stopPropagation();
+                var newAutoShow = !autoShowEnabled;
+                setQuickJumpAutoShow(newAutoShow);
+                autoShowEnabled = newAutoShow;
+                updateAutoShowButton();
+                showToast(newAutoShow ? portTeleportT("autoShowEnabled") : portTeleportT("autoShowDisabled"));
+            });
+            function updateAutoShowButton() {
+                autoShowBtn.textContent = autoShowEnabled ? "👁️" : "👁️‍🗨️";
+                autoShowBtn.title = autoShowEnabled ? portTeleportT("autoShowDisabled") : portTeleportT("autoShowEnabled");
+                autoShowBtn.style.color = autoShowEnabled ? "#4a9eff" : "#888";
+            }
+            
+            pinBtn.addEventListener("click", function(e) {
+                e.stopPropagation();
+                var newPinned = !isPinned;
+                setQuickJumpPinned(newPinned);
+                if (newPinned) {
+                    var rect = quickJumpMenu.getBoundingClientRect();
+                    var left = rect.left;
+                    var top = rect.top;
+                    setQuickJumpPinnedPosition(left, top);
+                    pinnedPosition = { x: left, y: top };
+                    autoShowEnabled = getQuickJumpAutoShow();
+                    autoShowBtn.style.display = "flex";
+                    updateAutoShowButton();
+                } else {
+                    setQuickJumpAutoShow(false);
+                    autoShowEnabled = false;
+                    autoShowBtn.style.display = "none";
+                }
+                quickJumpMenu.style.transform = "scale(" + quickJumpMenuScale + ")";
+                quickJumpMenu.style.transformOrigin = "top left";
+                isPinned = newPinned;
+                pinBtn.textContent = isPinned ? "📌" : "📍";
+                pinBtn.title = isPinned ? portTeleportT("unpinWindow") : portTeleportT("pinWindow");
+                pinBtn.style.color = isPinned ? "#4a9eff" : "#888";
+            });
+            headerButtons.appendChild(pinBtn);
+            autoShowEnabled = getQuickJumpAutoShow();
+            autoShowBtn.textContent = autoShowEnabled ? "👁️" : "👁️‍🗨️";
+            autoShowBtn.title = autoShowEnabled ? portTeleportT("autoShowDisabled") : portTeleportT("autoShowEnabled");
+            autoShowBtn.style.cssText = 
+                "cursor: pointer;" +
+                "font-size: 14px;" +
+                "color: " + (autoShowEnabled ? "#4a9eff" : "#888") + ";" +
+                "width: 20px;" +
+                "height: 20px;" +
+                "display: " + (isPinned ? "flex" : "none") + ";" +
+                "align-items: center;" +
+                "justify-content: center;" +
+                "border-radius: 2px;";
+            autoShowBtn.addEventListener("mouseenter", function() {
+                this.style.background = "var(--comfy-menu-bg-hover, rgba(255,255,255,0.1))";
+            });
+            autoShowBtn.addEventListener("mouseleave", function() {
+                this.style.background = "transparent";
+            });
+            headerButtons.appendChild(autoShowBtn);
+            
             var closeBtn = document.createElement("span");
             closeBtn.textContent = "×";
             closeBtn.style.cssText = 
@@ -2030,15 +2309,16 @@ app.registerExtension({
                 e.stopPropagation();
                 closeQuickJumpMenu();
             });
-            menuHeader.appendChild(closeBtn);
+            headerButtons.appendChild(closeBtn);
+            menuHeader.appendChild(headerButtons);
             
             menuHeader.addEventListener("mousedown", function(e) {
-                if (e.target === closeBtn) return;
+                if (e.target === closeBtn || e.target === pinBtn || e.target === autoShowBtn) return;
                 e.preventDefault();
                 isDragging = true;
                 var rect = quickJumpMenu.getBoundingClientRect();
-                dragOffset.x = e.clientX - rect.left - rect.width / 2;
-                dragOffset.y = e.clientY - rect.top - rect.height / 2;
+                dragOffset.x = e.clientX - rect.left;
+                dragOffset.y = e.clientY - rect.top;
                 quickJumpMenu.style.cursor = "move";
             });
             
@@ -2154,21 +2434,26 @@ app.registerExtension({
                             if (portTeleportFunctions.jumpToNode) {
                                 portTeleportFunctions.jumpToNode(targetNode);
                             }
-                            closeQuickJumpMenu();
+                            if (!isPinned) {
+                                closeQuickJumpMenu();
+                            }
                         });
                         
                         leftPanel.appendChild(menuItem);
                     });
                 });
             } else {
-                var emptyInput = document.createElement("div");
-                emptyInput.textContent = portTeleportT("noConnection");
-                emptyInput.style.cssText = 
-                    "padding: 20px;" +
-                    "text-align: center;" +
-                    "color: #888;" +
-                    "font-size: 12px;";
-                leftPanel.appendChild(emptyInput);
+                var leftEasyNodes = easyUseNodes.filter(function(n) { return n.isInput; });
+                if (leftEasyNodes.length === 0) {
+                    var emptyInput = document.createElement("div");
+                    emptyInput.textContent = portTeleportT("noConnection");
+                    emptyInput.style.cssText = 
+                        "padding: 20px;" +
+                        "text-align: center;" +
+                        "color: #888;" +
+                        "font-size: 12px;";
+                    leftPanel.appendChild(emptyInput);
+                }
             }
             
             if (outputPorts.length > 0) {
@@ -2260,13 +2545,15 @@ app.registerExtension({
                             if (portTeleportFunctions.jumpToNode) {
                                 portTeleportFunctions.jumpToNode(targetNode);
                             }
-                            closeQuickJumpMenu();
+                            if (!isPinned) {
+                                closeQuickJumpMenu();
+                            }
                         });
                         
                         rightPanel.appendChild(menuItem);
                     });
                 });
-            } else {
+            } else if (easyUseNodes.length === 0) {
                 var emptyOutput = document.createElement("div");
                 emptyOutput.textContent = portTeleportT("noConnection");
                 emptyOutput.style.cssText = 
@@ -2277,6 +2564,152 @@ app.registerExtension({
                 rightPanel.appendChild(emptyOutput);
             }
             
+            if (easyUseNodes.length > 0) {
+                var leftEasyNodes = easyUseNodes.filter(function(n) { return n.isInput; });
+                var rightEasyNodes = easyUseNodes.filter(function(n) { return !n.isInput; });
+                
+                if (leftEasyNodes.length > 0) {
+                    if (inputPorts.length > 0) {
+                        var separatorLeft = document.createElement("div");
+                        separatorLeft.style.cssText = 
+                            "height: 1px;" +
+                            "background: var(--border-color, #666);" +
+                            "margin: 8px 0;";
+                        leftPanel.appendChild(separatorLeft);
+                    }
+                    
+                    var easyUseTitleLeft = document.createElement("div");
+                    easyUseTitleLeft.textContent = "🔄 Easy Use";
+                    easyUseTitleLeft.style.cssText = 
+                        "padding: 8px 12px;" +
+                        "background: var(--comfy-menu-bg-hover, rgba(255,255,255,0.05));" +
+                        "font-weight: bold;" +
+                        "border-bottom: 1px solid var(--border-color, #666);" +
+                        "font-size: 12px;";
+                    leftPanel.appendChild(easyUseTitleLeft);
+                    
+                    leftEasyNodes.forEach(function(easyNode, easyIdx) {
+                        var targetNode = easyNode.node;
+                        var targetNodeTitle = targetNode.getTitle ? targetNode.getTitle() : (targetNode.title || targetNode.type);
+                        var menuItem = document.createElement("div");
+                        menuItem.className = "mechababy-quick-jump-item";
+                        var isLastItem = (easyIdx === leftEasyNodes.length - 1);
+                        menuItem.style.cssText = 
+                            "padding: 8px 12px;" +
+                            "cursor: pointer;" +
+                            (isLastItem ? "" : "border-bottom: 1px solid var(--border-color, #333);") +
+                            "font-size: 12px;" +
+                            "transition: background 0.2s;";
+                        
+                        var labelDiv = document.createElement("div");
+                        labelDiv.style.cssText = "color: #888; font-size: 11px; margin-bottom: 2px;";
+                        var labelText = easyNode.label || "";
+                        if (labelText) {
+                            if (labelText.startsWith("→")) {
+                                labelText = "←" + labelText.substring(1);
+                            }
+                            labelDiv.textContent = labelText;
+                        } else {
+                            labelDiv.textContent = "← Set";
+                        }
+                        menuItem.appendChild(labelDiv);
+                        
+                        var targetLabel = document.createElement("div");
+                        targetLabel.textContent = targetNodeTitle + " (ID: " + targetNode.id + ")";
+                        targetLabel.style.cssText = "color: #fff; font-weight: 500;";
+                        menuItem.appendChild(targetLabel);
+                        
+                        menuItem.addEventListener("mouseenter", function() {
+                            this.style.background = "var(--comfy-menu-bg-hover, rgba(255,255,255,0.1))";
+                        });
+                        menuItem.addEventListener("mouseleave", function() {
+                            this.style.background = "transparent";
+                        });
+                        
+                        menuItem.addEventListener("click", function(e) {
+                            e.stopPropagation();
+                            if (portTeleportFunctions.jumpToNode) {
+                                portTeleportFunctions.jumpToNode(targetNode);
+                            }
+                            if (!isPinned) {
+                                closeQuickJumpMenu();
+                            }
+                        });
+                        
+                        leftPanel.appendChild(menuItem);
+                    });
+                }
+                
+                if (rightEasyNodes.length > 0) {
+                    if (outputPorts.length > 0) {
+                        var separatorRight = document.createElement("div");
+                        separatorRight.style.cssText = 
+                            "height: 1px;" +
+                            "background: var(--border-color, #666);" +
+                            "margin: 8px 0;";
+                        rightPanel.appendChild(separatorRight);
+                    }
+                    
+                    var easyUseTitleRight = document.createElement("div");
+                    easyUseTitleRight.textContent = "🔄 Easy Use";
+                    easyUseTitleRight.style.cssText = 
+                        "padding: 8px 12px;" +
+                        "background: var(--comfy-menu-bg-hover, rgba(255,255,255,0.05));" +
+                        "font-weight: bold;" +
+                        "border-bottom: 1px solid var(--border-color, #666);" +
+                        "font-size: 12px;";
+                    rightPanel.appendChild(easyUseTitleRight);
+                    
+                    rightEasyNodes.forEach(function(easyNode, easyIdx) {
+                        var targetNode = easyNode.node;
+                        var targetNodeTitle = targetNode.getTitle ? targetNode.getTitle() : (targetNode.title || targetNode.type);
+                        var menuItem = document.createElement("div");
+                        menuItem.className = "mechababy-quick-jump-item";
+                        var isLastItem = (easyIdx === rightEasyNodes.length - 1);
+                        menuItem.style.cssText = 
+                            "padding: 8px 12px;" +
+                            "cursor: pointer;" +
+                            (isLastItem ? "" : "border-bottom: 1px solid var(--border-color, #333);") +
+                            "font-size: 12px;" +
+                            "transition: background 0.2s;";
+                        
+                        var labelDiv = document.createElement("div");
+                        labelDiv.style.cssText = "color: #888; font-size: 11px; margin-bottom: 2px;";
+                        var labelText = easyNode.label || "";
+                        if (labelText) {
+                            labelDiv.textContent = labelText;
+                        } else {
+                            labelDiv.textContent = "→ Get";
+                        }
+                        menuItem.appendChild(labelDiv);
+                        
+                        var targetLabel = document.createElement("div");
+                        targetLabel.textContent = targetNodeTitle + " (ID: " + targetNode.id + ")";
+                        targetLabel.style.cssText = "color: #fff; font-weight: 500;";
+                        menuItem.appendChild(targetLabel);
+                        
+                        menuItem.addEventListener("mouseenter", function() {
+                            this.style.background = "var(--comfy-menu-bg-hover, rgba(255,255,255,0.1))";
+                        });
+                        menuItem.addEventListener("mouseleave", function() {
+                            this.style.background = "transparent";
+                        });
+                        
+                        menuItem.addEventListener("click", function(e) {
+                            e.stopPropagation();
+                            if (portTeleportFunctions.jumpToNode) {
+                                portTeleportFunctions.jumpToNode(targetNode);
+                            }
+                            if (!isPinned) {
+                                closeQuickJumpMenu();
+                            }
+                        });
+                        
+                        rightPanel.appendChild(menuItem);
+                    });
+                }
+            }
+            
             contentContainer.appendChild(leftPanel);
             contentContainer.appendChild(rightPanel);
             quickJumpMenu.appendChild(menuHeader);
@@ -2285,6 +2718,10 @@ app.registerExtension({
             
             requestAnimationFrame(function() {
                 if (!quickJumpMenu || !quickJumpMenu.parentNode) return;
+                
+                if (isPinned && shouldReuse) {
+                    return;
+                }
                 
                 var nodeElement = null;
                 if (app.canvas) {
@@ -2333,8 +2770,10 @@ app.registerExtension({
                     var newMenuX = rect.left + rect.width / 2;
                     var newMenuY = rect.top + rect.height / 2;
                     
-                    quickJumpMenu.style.left = newMenuX + "px";
-                    quickJumpMenu.style.top = newMenuY + "px";
+                    if (!isPinned) {
+                        quickJumpMenu.style.left = newMenuX + "px";
+                        quickJumpMenu.style.top = newMenuY + "px";
+                    }
 
                 } else {
                     var nodeX = 0, nodeY = 0;
@@ -2428,8 +2867,10 @@ app.registerExtension({
                             }
                         }
                         
-                        quickJumpMenu.style.left = newMenuX + "px";
-                        quickJumpMenu.style.top = newMenuY + "px";                        
+                        if (!isPinned) {
+                            quickJumpMenu.style.left = newMenuX + "px";
+                            quickJumpMenu.style.top = newMenuY + "px";
+                        }
 
                     }
                 }
@@ -2442,13 +2883,21 @@ app.registerExtension({
                 var newY = e.clientY - dragOffset.y;
                 quickJumpMenu.style.left = newX + "px";
                 quickJumpMenu.style.top = newY + "px";
-                quickJumpMenu.style.transform = "translate(-50%, -50%) scale(" + quickJumpMenuScale + ")";
+                quickJumpMenu.style.transform = "scale(" + quickJumpMenuScale + ")";
+                quickJumpMenu.style.transformOrigin = "top left";
             };
             
             window._quickJumpMenuDragEndHandler = function(e) {
                 if (isDragging) {
                     isDragging = false;
                     quickJumpMenu.style.cursor = "";
+                    if (isPinned && quickJumpMenu) {
+                        var rect = quickJumpMenu.getBoundingClientRect();
+                        var left = rect.left;
+                        var top = rect.top;
+                        setQuickJumpPinnedPosition(left, top);
+                        pinnedPosition = { x: left, y: top };
+                    }
                 }
             };
             
@@ -2458,7 +2907,9 @@ app.registerExtension({
             window._quickJumpMenuClickHandler = function(e) {
                 if (isDragging) return;
                 if (quickJumpMenu && quickJumpMenu.contains(e.target)) return;
-                closeQuickJumpMenu();
+                if (!isPinned) {
+                    closeQuickJumpMenu();
+                }
             };
             setTimeout(function() {
                 document.addEventListener("mousedown", window._quickJumpMenuClickHandler);
@@ -2466,8 +2917,10 @@ app.registerExtension({
             
             var escHandler = function(e) {
                 if (e.key === "Escape" && quickJumpMenu) {
-                    closeQuickJumpMenu();
-                    document.removeEventListener("keydown", escHandler);
+                    if (!isPinned) {
+                        closeQuickJumpMenu();
+                        document.removeEventListener("keydown", escHandler);
+                    }
                 }
             };
             document.addEventListener("keydown", escHandler);
@@ -2520,7 +2973,61 @@ app.registerExtension({
             
         }
         
+        function setupAutoShowListener() {
+            if (!app || !app.canvas) return;
+            
+            var checkNodeSelection = function() {
+                if (!isPinned || !autoShowEnabled) {
+                    lastSelectedNodeId = null;
+                    return;
+                }
+                
+                var selectedNode = null;
+                if (app.canvas.selected_nodes) {
+                    var selectedNodes = app.canvas.selected_nodes;
+                    var selectedNodeIds = Object.keys(selectedNodes);
+                    if (selectedNodeIds.length > 0) {
+                        selectedNode = selectedNodes[selectedNodeIds[0]];
+                    }
+                }
+                
+                if (selectedNode && selectedNode.id !== lastSelectedNodeId) {
+                    lastSelectedNodeId = selectedNode.id;
+                    setTimeout(function() {
+                        if (isPinned && autoShowEnabled && selectedNode) {
+                            showQuickJumpMenu(selectedNode);
+                        }
+                    }, 100);
+                } else if (!selectedNode) {
+                    lastSelectedNodeId = null;
+                }
+            };
+            
+            var selectionCheckInterval = setInterval(function() {
+                if (isPinned && autoShowEnabled) {
+                    checkNodeSelection();
+                } else {
+                    lastSelectedNodeId = null;
+                }
+            }, 200);
+            
+            window._autoShowSelectionInterval = selectionCheckInterval;
+        }
+        
         setupQuickJumpShortcut();
+        
+        if (app && app.canvas) {
+            setupAutoShowListener();
+        } else {
+            var waitForCanvasForAutoShow = function() {
+                if (app && app.canvas) {
+                    setupAutoShowListener();
+                } else {
+                    setTimeout(waitForCanvasForAutoShow, 100);
+                }
+            };
+            setTimeout(waitForCanvasForAutoShow, 100);
+        }
         var currentLang = getPortTeleportLanguage();
         console.log("[MechaBaby PortTeleport] 扩展已加载 - 在节点端口上右键可传送到连接节点");
         console.log("[MechaBaby PortTeleport] 当前语言: " + currentLang);
