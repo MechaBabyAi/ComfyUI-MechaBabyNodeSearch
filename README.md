@@ -10,7 +10,8 @@ Enhance ComfyUI workflow by providing powerful node search, attribute search, an
 - 📝 **Attribute Search**: Search node attribute names and values (including numbers and text)
 - 🔗 **Port Teleport**: Right-click on node ports to jump directly to connected nodes
 - ⚡ **Quick Jump Menu**: Select a node and press the shortcut (default: F1) to quickly view and jump to all connected nodes
-- 📌 **Pin Window**: Pin the quick jump menu to a fixed position for continuous use
+- 🔍 **Movable & Pinnable Search**: Search dialog (Ctrl+F) is now movable and can be pinned to stay open
+- 📌 **Pin Window**: Pin the quick jump menu or search dialog to a fixed position for continuous use
 - 👁️ **Auto Show**: When window is pinned, enable auto-show to automatically display jump list when clicking nodes
 - ⏪ **History Navigation**: Navigate jump history using mouse side buttons or customizable keyboard keys
 - 🔄 **Auto Jump**: Automatically jump when port has only one connection (optional)
@@ -75,10 +76,12 @@ Access port teleport settings through:
 
 ### Pin Window and Auto Show
 
-1. **Pin Window**: Click the 📍 button in the quick jump menu header to pin the window to a fixed position
+1. **Pin Window**: Click the 📍 button in the quick jump menu or search dialog header to pin the window to a fixed position
    - When pinned, the window stays open when jumping to nodes
-   - Window position remains fixed when switching nodes
+   - Window position remains fixed when switching nodes or performing searches
    - Click 📌 to unpin the window
+
+2. **Movable Dialogs**: Both the quick jump menu and search dialog can be moved by dragging their title bars. Position is remembered when pinned.
 
 2. **Auto Show**: When window is pinned, click the 👁️ button to enable auto-show
    - When enabled, clicking any node will automatically display the jump list
@@ -107,6 +110,13 @@ Access port teleport settings through:
 MIT License
 
 ## Changelog
+
+### v1.6.0 (2026-01-25)
+- Added movable and pinnable features to the main search dialog (Ctrl+F)
+- Improved search dialog: remembers position when pinned, stays open after jumping
+- Enhanced toast notifications: refined blue translucent styling with 90% opacity and improved font visibility
+- Fixed UI consistency: all dialogs now support dragging via title bar
+- Improved quick jump (F1) logic: fixed GET/SET arrow directions and Easy Use node categorization
 
 ### v1.5.0 (2026-01-08)
 - Added pin window feature: pin the quick jump menu to a fixed position

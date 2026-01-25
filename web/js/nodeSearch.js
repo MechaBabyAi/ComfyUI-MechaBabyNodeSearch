@@ -49,7 +49,9 @@ var i18n = {
         english: 'English',
         japanese: '日本語',
         korean: '한국어',
-        russian: 'Русский'
+        russian: 'Русский',
+        pinWindow: '钉住窗口',
+        unpinWindow: '取消钉住'
     },
     'en-US': {
         searchNodes: 'Search Nodes',
@@ -99,7 +101,9 @@ var i18n = {
         english: 'English',
         japanese: '日本語',
         korean: '한국어',
-        russian: 'Русский'
+        russian: 'Русский',
+        pinWindow: 'Pin Window',
+        unpinWindow: 'Unpin Window'
     },
     'ja-JP': {
         searchNodes: 'ノード検索',
@@ -131,6 +135,7 @@ var i18n = {
         propertyLabel: 'プロパティ: ',
         propertyValueLabel: 'プロパティ値: ',
         nodeMayNotLoadedHint: ' | ⚠️ ノードが正しく読み込まれていない可能性があります',
+        shadowBlur: '1px solid rgba(255, 255, 255, 0.2)',
         settings: '設定',
         nodeSearchSettings: 'NodeSearch 設定',
         language: '言語',
@@ -149,7 +154,9 @@ var i18n = {
         english: 'English',
         japanese: '日本語',
         korean: '한국어',
-        russian: 'Русский'
+        russian: 'Русский',
+        pinWindow: 'ウィンドウを固定',
+        unpinWindow: '固定を解除'
     },
     'ko-KR': {
         searchNodes: '노드 검색',
@@ -199,7 +206,9 @@ var i18n = {
         english: 'English',
         japanese: '日本語',
         korean: '한국어',
-        russian: 'Русский'
+        russian: 'Русский',
+        pinWindow: '창 고정',
+        unpinWindow: '고정 해제'
     },
     'ru-RU': {
         searchNodes: 'Поиск узлов',
@@ -249,7 +258,9 @@ var i18n = {
         english: 'English',
         japanese: '日本語',
         korean: '한국어',
-        russian: 'Русский'
+        russian: 'Русский',
+        pinWindow: 'Закрепить окно',
+        unpinWindow: 'Открепить окно'
     }
 };
 
@@ -367,6 +378,28 @@ var config = {
             parts.push(key);
         }
         return parts.join('+');
+    },
+
+    getIsPinned: function() {
+        return localStorage.getItem('mechababy.nodeSearch.pinned') === 'true';
+    },
+
+    setIsPinned: function(pinned) {
+        localStorage.setItem('mechababy.nodeSearch.pinned', pinned);
+    },
+
+    getPinnedPosition: function() {
+        var saved = localStorage.getItem('mechababy.nodeSearch.pinnedPosition');
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {}
+        }
+        return null;
+    },
+
+    setPinnedPosition: function(pos) {
+        localStorage.setItem('mechababy.nodeSearch.pinnedPosition', JSON.stringify(pos));
     }
 };
 
@@ -392,7 +425,9 @@ var nodeSearchState = {
     keyboardHandlerBound: false,
     openSearchDialog: null,  
     currentHandler: null,    
-    settingsDialog: null     
+    settingsDialog: null,
+    isPinned: false,
+    pinnedPosition: null
 };
 
 app.registerExtension({
@@ -734,13 +769,14 @@ app.registerExtension({
                 return searchDialog;
             }
 
+            nodeSearchState.isPinned = config.getIsPinned();
+            nodeSearchState.pinnedPosition = config.getPinnedPosition();
+
             const dialog = document.createElement('div');
             dialog.id = 'mechababy-node-search-dialog';
-            dialog.style.cssText =
+            
+            var initialStyle = 
                 'position: fixed;' +
-                'top: 50%;' +
-                'left: 50%;' +
-                'transform: translate(-50%, -50%);' +
                 'background: #2a2a2a;' +
                 'border: 2px solid #4a4a4a;' +
                 'border-radius: 8px;' +
@@ -754,17 +790,142 @@ app.registerExtension({
                 'box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);' +
                 "font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;";
 
+            if (nodeSearchState.isPinned && nodeSearchState.pinnedPosition) {
+                initialStyle += 'top: ' + nodeSearchState.pinnedPosition.y + 'px; left: ' + nodeSearchState.pinnedPosition.x + 'px; transform: none;';
+            } else {
+                initialStyle += 'top: 50%; left: 50%; transform: translate(-50%, -50%);';
+            }
+            dialog.style.cssText = initialStyle;
+
+            
+            const header = document.createElement('div');
+            header.style.cssText =
+                'display: flex;' +
+                'justify-content: space-between;' +
+                'align-items: center;' +
+                'margin-bottom: 15px;' +
+                'border-bottom: 1px solid #4a4a4a;' +
+                'padding-bottom: 10px;' +
+                'cursor: move;' +
+                'user-select: none;';
             
             const title = document.createElement('div');
             title.textContent = '🔍 ' + t('searchNodes');
             title.style.cssText =
                 'font-size: 18px;' +
                 'font-weight: bold;' +
-                'color: #e0e0e0;' +
-                'margin-bottom: 15px;' +
-                'border-bottom: 1px solid #4a4a4a;' +
-                'padding-bottom: 10px;';
-            dialog.appendChild(title);
+                'color: #e0e0e0;';
+            header.appendChild(title);
+
+            const headerButtons = document.createElement('div');
+            headerButtons.style.cssText = 'display: flex; align-items: center; gap: 8px;';
+
+            const pinBtn = document.createElement('span');
+            pinBtn.textContent = nodeSearchState.isPinned ? "📌" : "📍";
+            pinBtn.title = nodeSearchState.isPinned ? t('unpinWindow') : t('pinWindow');
+            pinBtn.style.cssText = 
+                'cursor: pointer;' +
+                'font-size: 16px;' +
+                'color: ' + (nodeSearchState.isPinned ? '#4a9eff' : '#888') + ';' +
+                'width: 24px;' +
+                'height: 24px;' +
+                'display: flex;' +
+                'align-items: center;' +
+                'justify-content: center;' +
+                'border-radius: 4px;' +
+                'transition: background 0.2s;';
+            
+            pinBtn.addEventListener('mouseenter', function() {
+                pinBtn.style.background = 'rgba(255, 255, 255, 0.1)';
+            });
+            pinBtn.addEventListener('mouseleave', function() {
+                pinBtn.style.background = 'transparent';
+            });
+            
+            pinBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                nodeSearchState.isPinned = !nodeSearchState.isPinned;
+                config.setIsPinned(nodeSearchState.isPinned);
+                
+                if (nodeSearchState.isPinned) {
+                    var rect = dialog.getBoundingClientRect();
+                    nodeSearchState.pinnedPosition = { x: rect.left, y: rect.top };
+                    config.setPinnedPosition(nodeSearchState.pinnedPosition);
+                    
+                    dialog.style.transform = 'none';
+                    dialog.style.top = nodeSearchState.pinnedPosition.y + 'px';
+                    dialog.style.left = nodeSearchState.pinnedPosition.x + 'px';
+                } else {
+                    dialog.style.top = '50%';
+                    dialog.style.left = '50%';
+                    dialog.style.transform = 'translate(-50%, -50%)';
+                }
+                
+                pinBtn.textContent = nodeSearchState.isPinned ? "📌" : "📍";
+                pinBtn.title = nodeSearchState.isPinned ? t('unpinWindow') : t('pinWindow');
+                pinBtn.style.color = nodeSearchState.isPinned ? '#4a9eff' : '#888';
+            });
+            
+            headerButtons.appendChild(pinBtn);
+            header.appendChild(headerButtons);
+            dialog.appendChild(header);
+
+            
+            var isDragging = false;
+            var dragStartX, dragStartY;
+            var dialogStartX, dialogStartY;
+
+            header.addEventListener('mousedown', function(e) {
+                if (e.target === pinBtn) return;
+                
+                isDragging = true;
+                dragStartX = e.clientX;
+                dragStartY = e.clientY;
+                
+                var rect = dialog.getBoundingClientRect();
+                dialogStartX = rect.left;
+                dialogStartY = rect.top;
+                
+                
+                if (dialog.style.transform && dialog.style.transform.includes('translate')) {
+                    dialog.style.transform = 'none';
+                    dialog.style.left = dialogStartX + 'px';
+                    dialog.style.top = dialogStartY + 'px';
+                }
+                
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+                
+                e.preventDefault();
+            });
+
+            function onMouseMove(e) {
+                if (!isDragging) return;
+                
+                var dx = e.clientX - dragStartX;
+                var dy = e.clientY - dragStartY;
+                
+                var newX = dialogStartX + dx;
+                var newY = dialogStartY + dy;
+                
+                dialog.style.left = newX + 'px';
+                dialog.style.top = newY + 'px';
+            }
+
+            function onMouseUp() {
+                if (isDragging) {
+                    isDragging = false;
+                    
+                    if (nodeSearchState.isPinned) {
+                        var rect = dialog.getBoundingClientRect();
+                        nodeSearchState.pinnedPosition = { x: rect.left, y: rect.top };
+                        config.setPinnedPosition(nodeSearchState.pinnedPosition);
+                    }
+                    
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+                }
+            }
             
             
             const inputContainer = document.createElement('div');
@@ -789,7 +950,9 @@ app.registerExtension({
                     if (searchResults.length > 0 && currentResultIndex >= 0) {
                         var result = searchResults[currentResultIndex];
                         jumpToNode(result.node);
-                        closeDialog();
+                        if (!nodeSearchState.isPinned) {
+                            closeDialog();
+                        }
                     }
                 } else if (e.key === 'ArrowDown') {
                     e.preventDefault();
@@ -839,10 +1002,12 @@ app.registerExtension({
             dialog.appendChild(info);
 
             
+            const footer = document.createElement('div');
+            footer.style.cssText = 'display: flex; justify-content: flex-end; margin-top: 10px;';
+
             const closeBtn = document.createElement('button');
             closeBtn.textContent = t('closeButton');
             closeBtn.style.cssText =
-                'margin-top: 10px;' +
                 'padding: 8px 16px;' +
                 'background: #4a4a4a;' +
                 'border: none;' +
@@ -857,7 +1022,8 @@ app.registerExtension({
             closeBtn.addEventListener('mouseleave', function() {
                 closeBtn.style.background = '#4a4a4a';
             });
-            dialog.appendChild(closeBtn);
+            footer.appendChild(closeBtn);
+            dialog.appendChild(footer);
 
             
             function updateResultsList() {
@@ -913,7 +1079,9 @@ app.registerExtension({
                             } else {
                                 
                                 jumpToNode(result.node);
-                                closeDialog();
+                                if (!nodeSearchState.isPinned) {
+                                    closeDialog();
+                                }
                             }
                         });
 
@@ -997,6 +1165,11 @@ app.registerExtension({
             if (!searchDialog) {
                 searchDialog = createSearchDialog();
                 document.body.appendChild(searchDialog);
+            } else {
+                
+                if (searchDialog.style.display === 'none') {
+                    searchDialog.style.display = 'flex';
+                }
             }
             
             
