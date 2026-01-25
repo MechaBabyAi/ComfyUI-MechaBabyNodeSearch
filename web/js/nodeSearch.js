@@ -1108,7 +1108,7 @@ app.registerExtension({
                         for (var j = 0; j < displayMatches.length; j++) {
                             var match = displayMatches[j];
                             var matchItem = document.createElement('div');
-                            matchItem.textContent = '  �?' + match.display;
+                            matchItem.textContent = '  • ' + match.display;
                             matchItem.style.cssText = 'color: #aaa; font-size: 12px; margin-left: 10px; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;';
                             matchesList.appendChild(matchItem);
                         }
