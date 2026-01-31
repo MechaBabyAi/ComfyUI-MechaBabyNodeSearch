@@ -18,7 +18,7 @@ Enhance ComfyUI workflow by providing powerful node search, attribute search, an
 - ⌨️ **Keyboard Shortcuts**: Press `Ctrl+F` to quickly open the search dialog
 - 🎯 **Smart Matching**: Supports searching node titles, types, node IDs, widget names, widget values, property names, and property values
 - ✨ **Golden Flash Highlight**: Target node flashes with golden color after jumping for better visibility
-- 🔄 **Easy Use Support**: Supports jumping between `easy getNode` and `easy setNode` nodes (comfyui-easy-use extension)
+- 🔄 **Set/Get Node Support**: Supports jumping between `easy getNode`/`easy setNode` (comfyui-easy-use) and `GetNode`/`SetNode` (ComfyUI-KJNodes)
 - ⚙️ **Rich Configuration**: Extensive settings for auto jump, menu blocking, navigation keys, and menu scaling
 
 ## Installation
@@ -110,6 +110,10 @@ Access port teleport settings through:
 MIT License
 
 ## Changelog
+
+### v1.6.1 (2026-01-31)
+- Added support for ComfyUI-KJNodes `GetNode` and `SetNode` jumping
+- Unified Set/Get node section title to "Set/Get" in quick jump panel
 
 ### v1.6.0 (2026-01-25)
 - Added movable and pinnable features to the main search dialog (Ctrl+F)

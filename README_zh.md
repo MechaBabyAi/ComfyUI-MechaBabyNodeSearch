@@ -18,7 +18,7 @@
 - ⌨️ **快捷键支持**：`Ctrl+F` 快速打开搜索对话框
 - 🎯 **智能匹配**：支持节点标题、类型、节点ID、控件名称、控件值、属性名称、属性值的搜索
 - ✨ **金黄色闪烁高亮**：跳转后目标节点会金黄色闪烁，更容易看到
-- 🔄 **Easy Use 支持**：支持 `easy getNode` 和 `easy setNode` 节点之间的跳转（comfyui-easy-use 扩展）
+- 🔄 **Set/Get 节点支持**：支持 `easy getNode`/`easy setNode`（comfyui-easy-use）以及 `GetNode`/`SetNode`（ComfyUI-KJNodes）之间的跳转
 - ⚙️ **丰富的配置选项**：自动跳转、菜单阻止、导航按键、菜单缩放等全面设置
 
 ## 安装
@@ -110,6 +110,10 @@
 MIT License
 
 ## 更新日志
+
+### v1.6.1 (2026-01-31)
+- 新增 ComfyUI-KJNodes 的 `GetNode` 和 `SetNode` 节点跳转支持
+- 快速跳转面板中 Set/Get 节点分类标题统一为「Set/Get」
 
 ### v1.6.0 (2026-01-25)
 - 节点搜索对话框（Ctrl+F）新增可移动及钉住功能

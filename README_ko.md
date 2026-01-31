@@ -18,7 +18,7 @@ ComfyUI 워크플로우를 강화하는 노드 검색, 속성 검색 및 포트 
 - ⌨️ **키보드 단축키**：`Ctrl+F`를 눌러 검색 대화상자를 빠르게 열기
 - 🎯 **스마트 매칭**：노드 제목, 유형, 노드 ID, 위젯 이름, 위젯 값, 속성 이름, 속성 값 검색 지원
 - ✨ **골든 플래시 하이라이트**：이동 후 대상 노드가 금색으로 깜빡여 더 쉽게 찾을 수 있습니다
-- 🔄 **Easy Use 지원**：`easy getNode`와 `easy setNode` 노드 간 이동 지원 (comfyui-easy-use 확장)
+- 🔄 **Set/Get 노드 지원**：`easy getNode`/`easy setNode`（comfyui-easy-use）및 `GetNode`/`SetNode`（ComfyUI-KJNodes）간 이동 지원
 - ⚙️ **풍부한 설정 옵션**：자동 이동, 메뉴 차단, 탐색 키, 메뉴 크기 조정 등 포괄적인 설정
 
 ## 설치

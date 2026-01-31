@@ -1,4 +1,4 @@
-﻿import { app } from "../../../scripts/app.js";
+import { app } from "../../../scripts/app.js";
 
 var portTeleportFunctions = {
     getConnectedNodes: null,
@@ -1011,7 +1011,8 @@ app.registerExtension({
             var relatedNodes = [];
             if (!node || !node.graph) return relatedNodes;
             try {
-                if (node.type === "easy getNode") {
+                /* easy use: easy getNode; KJNodes: GetNode */
+                if (node.type === "easy getNode" || node.type === "GetNode") {
                     if (typeof node.findSetter === "function") {
                         var setter = node.findSetter(node.graph);
                         if (setter) {
@@ -1019,7 +1020,8 @@ app.registerExtension({
                             if (constantValue) relatedNodes.push({ node: setter, label: "← Set_" + constantValue, direction: "to" });
                         }
                     }
-                } else if (node.type === "easy setNode") {
+                /* easy use: easy setNode; KJNodes: SetNode */
+                } else if (node.type === "easy setNode" || node.type === "SetNode") {
                     if (typeof node.findGetters === "function") {
                         var getters = node.findGetters(node.graph);
                         if (getters && getters.length > 0) {
@@ -1031,7 +1033,7 @@ app.registerExtension({
                         }
                     }
             } catch (error) {
-                console.warn("[MechaBaby PortTeleport] 获取 easy use 关联节点失败:", error);
+                console.warn("[MechaBaby PortTeleport] 获取 Set/Get 关联节点失败:", error);
             }
                 return relatedNodes;
             }
@@ -1144,8 +1146,8 @@ app.registerExtension({
                                         var targetNodeTitle = related.node.getTitle ? related.node.getTitle() : related.node.title || related.node.type;
                                         var menuLabel = related.label || "";
                                         if (!menuLabel) {
-                                            menuLabel = node.type === "easy getNode" ? "← " + targetNodeTitle : "→ " + targetNodeTitle;
-                                        } else if (node.type === "easy getNode" && menuLabel.startsWith("→")) {
+                                            menuLabel = (node.type === "easy getNode" || node.type === "GetNode") ? "← " + targetNodeTitle : "→ " + targetNodeTitle;
+                                        } else if ((node.type === "easy getNode" || node.type === "GetNode") && menuLabel.startsWith("→")) {
                                             menuLabel = "←" + menuLabel.substring(1);
                                         }
                                     teleportOptions.push({
@@ -1887,7 +1889,7 @@ app.registerExtension({
                         node: related.node,
                         label: related.label || "",
                         direction: related.direction || "to",
-                        isInput: node.type === "easy getNode"
+                        isInput: node.type === "easy getNode" || node.type === "GetNode"
                     });
                 });
             }
@@ -2579,7 +2581,7 @@ app.registerExtension({
                     }
                     
                     var easyUseTitleLeft = document.createElement("div");
-                    easyUseTitleLeft.textContent = "🔄 Easy Use";
+                    easyUseTitleLeft.textContent = "🔄 Set/Get";
                     easyUseTitleLeft.style.cssText = 
                         "padding: 8px 12px;" +
                         "background: var(--comfy-menu-bg-hover, rgba(255,255,255,0.05));" +
@@ -2651,7 +2653,7 @@ app.registerExtension({
                     }
                     
                     var easyUseTitleRight = document.createElement("div");
-                    easyUseTitleRight.textContent = "🔄 Easy Use";
+                    easyUseTitleRight.textContent = "🔄 Set/Get";
                     easyUseTitleRight.style.cssText = 
                         "padding: 8px 12px;" +
                         "background: var(--comfy-menu-bg-hover, rgba(255,255,255,0.05));" +
