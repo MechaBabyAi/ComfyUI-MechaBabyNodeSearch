@@ -16,7 +16,7 @@ Enhance ComfyUI workflow by providing powerful node search, attribute search, an
 - ⏪ **History Navigation**: Navigate jump history using mouse side buttons or customizable keyboard keys
 - 🔄 **Auto Jump**: Automatically jump when port has only one connection (optional)
 - ⌨️ **Keyboard Shortcuts**: Press `Ctrl+F` to quickly open the search dialog
-- 🎯 **Smart Matching**: Supports searching node titles, types, node IDs, widget names, widget values, property names, and property values
+- 🎯 **Smart Matching**: Supports searching node titles, types, node IDs, widget names, widget values, property names, and property values; supports Normal, Wildcard (* ?), and Regex modes
 - ✨ **Golden Flash Highlight**: Target node flashes with golden color after jumping for better visibility
 - 🔄 **Set/Get Node Support**: Supports jumping between `easy getNode`/`easy setNode` (comfyui-easy-use) and `GetNode`/`SetNode` (ComfyUI-KJNodes)
 - 📋 **Copy Widget Value**: Right-click on a node and choose "Copy Widget Value", or **select a node and press F4** to open the copy menu; select a value to copy to clipboard
@@ -113,11 +113,12 @@ MIT License
 
 ## Changelog
 
-### v1.6.2 (2026-02-01)
+### v1.6.3 (2026-02-01)
+- Added regex and wildcard search: switch between Normal, Wildcard (* ?), and Regex modes in search dialog
+- Added scrollbar for search results: when results overflow, a scrollbar appears on the right
 - Added copy widget value: right-click "Copy Widget Value" or press F4 on selected node to copy model/LoRA names
 - Added configurable copy shortcut in MechaBaby extension settings (default: F4)
 - Fixed shortcut dialog: Cancel button now properly removes key listener
-- UI: Removed extra bottom border and redundant shortcut hint in copy menu title
 
 ### v1.6.1 (2026-01-31)
 - Added support for ComfyUI-KJNodes `GetNode` and `SetNode` jumping

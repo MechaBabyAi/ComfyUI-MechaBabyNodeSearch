@@ -51,7 +51,11 @@ var i18n = {
         korean: '한국어',
         russian: 'Русский',
         pinWindow: '钉住窗口',
-        unpinWindow: '取消钉住'
+        unpinWindow: '取消钉住',
+        searchMode: '搜索模式',
+        normalMode: '普通',
+        wildcardMode: '通配符',
+        regexMode: '正则'
     },
     'en-US': {
         searchNodes: 'Search Nodes',
@@ -103,7 +107,11 @@ var i18n = {
         korean: '한국어',
         russian: 'Русский',
         pinWindow: 'Pin Window',
-        unpinWindow: 'Unpin Window'
+        unpinWindow: 'Unpin Window',
+        searchMode: 'Search Mode',
+        normalMode: 'Normal',
+        wildcardMode: 'Wildcard',
+        regexMode: 'Regex'
     },
     'ja-JP': {
         searchNodes: 'ノード検索',
@@ -156,7 +164,11 @@ var i18n = {
         korean: '한국어',
         russian: 'Русский',
         pinWindow: 'ウィンドウを固定',
-        unpinWindow: '固定を解除'
+        unpinWindow: '固定を解除',
+        searchMode: '検索モード',
+        normalMode: '通常',
+        wildcardMode: 'ワイルドカード',
+        regexMode: '正規表現'
     },
     'ko-KR': {
         searchNodes: '노드 검색',
@@ -208,7 +220,11 @@ var i18n = {
         korean: '한국어',
         russian: 'Русский',
         pinWindow: '창 고정',
-        unpinWindow: '고정 해제'
+        unpinWindow: '고정 해제',
+        searchMode: '검색 모드',
+        normalMode: '일반',
+        wildcardMode: '와일드카드',
+        regexMode: '정규식'
     },
     'ru-RU': {
         searchNodes: 'Поиск узлов',
@@ -260,7 +276,11 @@ var i18n = {
         korean: '한국어',
         russian: 'Русский',
         pinWindow: 'Закрепить окно',
-        unpinWindow: 'Открепить окно'
+        unpinWindow: 'Открепить окно',
+        searchMode: 'Режим поиска',
+        normalMode: 'Обычный',
+        wildcardMode: 'Подстановочные знаки',
+        regexMode: 'Регулярное выражение'
     }
 };
 
@@ -400,6 +420,22 @@ var config = {
 
     setPinnedPosition: function(pos) {
         localStorage.setItem('mechababy.nodeSearch.pinnedPosition', JSON.stringify(pos));
+    },
+
+    getSearchMode: function() {
+        var saved = localStorage.getItem('mechababy.nodeSearch.searchMode');
+        if (saved === 'wildcard' || saved === 'regex') {
+            return saved;
+        }
+        return 'normal';
+    },
+
+    setSearchMode: function(mode) {
+        if (mode === 'normal' || mode === 'wildcard' || mode === 'regex') {
+            localStorage.setItem('mechababy.nodeSearch.searchMode', mode);
+            return true;
+        }
+        return false;
     }
 };
 
@@ -514,12 +550,39 @@ app.registerExtension({
         var keyboardHandlerBound = nodeSearchState.keyboardHandlerBound;
 
         
+        function textMatchesSearch(text, keyword, mode) {
+            if (text === null || text === undefined) return false;
+            var str = String(text);
+            if (!keyword || keyword.trim() === "") return false;
+            var kw = keyword.trim();
+
+            if (mode === 'regex') {
+                try {
+                    var re = new RegExp(kw, 'i');
+                    return re.test(str);
+                } catch (e) {
+                    return false;
+                }
+            }
+            if (mode === 'wildcard') {
+                try {
+                    var escaped = kw.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+                    escaped = escaped.replace(/\*/g, '.*').replace(/\?/g, '.');
+                    var re = new RegExp(escaped, 'i');
+                    return re.test(str);
+                } catch (e) {
+                    return false;
+                }
+            }
+            return str.toLowerCase().includes(kw.toLowerCase());
+        }
+
         function searchNodes(keyword) {
             if (!keyword || keyword.trim() === "") {
                 return [];
             }
 
-            var keywordLower = keyword.toLowerCase().trim();
+            var searchMode = config.getSearchMode();
             var results = [];
 
             
@@ -541,7 +604,7 @@ app.registerExtension({
                         }
                         
                         
-                        if (nodeTitle && nodeTitle.toLowerCase().includes(keywordLower)) {
+                        if (nodeTitle && textMatchesSearch(nodeTitle, keyword, searchMode)) {
                             matches.push({
                                 type: 'node_title',
                                 name: t('nodeTitle'),
@@ -551,7 +614,7 @@ app.registerExtension({
                         }
 
                         
-                        if (node.type && node.type.toLowerCase().includes(keywordLower)) {
+                        if (node.type && textMatchesSearch(node.type, keyword, searchMode)) {
                             matches.push({
                                 type: 'node_type',
                                 name: t('nodeType'),
@@ -563,7 +626,7 @@ app.registerExtension({
                         
                         if (node.id !== undefined && node.id !== null) {
                             var nodeIdStr = String(node.id);
-                            if (nodeIdStr.toLowerCase().includes(keywordLower)) {
+                            if (textMatchesSearch(nodeIdStr, keyword, searchMode)) {
                                 matches.push({
                                     type: 'node_id',
                                     name: t('nodeId'),
@@ -586,7 +649,7 @@ app.registerExtension({
                                             : (widget.value !== undefined ? widget.value : '');
                                         
                                         
-                                        if (widgetName && widgetName.toLowerCase().includes(keywordLower)) {
+                                        if (widgetName && textMatchesSearch(widgetName, keyword, searchMode)) {
                                             matches.push({
                                                 type: 'widget_name',
                                                 name: widgetName,
@@ -597,7 +660,7 @@ app.registerExtension({
                                         
                                         
                                         const valueStr = String(widgetValue);
-                                        if (valueStr && valueStr.toLowerCase().includes(keywordLower) && widgetName) {
+                                        if (valueStr && textMatchesSearch(valueStr, keyword, searchMode) && widgetName) {
                                             matches.push({
                                                 type: 'widget_value',
                                                 name: widgetName,
@@ -625,7 +688,7 @@ app.registerExtension({
                                         var propValueStr = String(propValue);
                                         
                                         
-                                        if (propName && propName.toLowerCase().includes(keywordLower)) {
+                                        if (propName && textMatchesSearch(propName, keyword, searchMode)) {
                                             matches.push({
                                                 type: 'property_name',
                                                 name: propName,
@@ -635,7 +698,7 @@ app.registerExtension({
                                         }
                                         
                                         
-                                        if (propValueStr && propValueStr.toLowerCase().includes(keywordLower)) {
+                                        if (propValueStr && textMatchesSearch(propValueStr, keyword, searchMode)) {
                                             matches.push({
                                                 type: 'property_value',
                                                 name: propName,
@@ -674,7 +737,7 @@ app.registerExtension({
                         if (node && node.type) {
                             try {
                                 const nodeType = node.type;
-                                if (nodeType.toLowerCase().includes(keywordLower)) {
+                                if (textMatchesSearch(nodeType, keyword, searchMode)) {
                                     results.push({
                                         node: node,
                                         nodeTitle: nodeType + ' (' + t('errorNode') + ')',
@@ -977,6 +1040,60 @@ app.registerExtension({
                 updateResultsList();
             });
             inputContainer.appendChild(input);
+
+            var modeRow = document.createElement('div');
+            modeRow.style.cssText = 'display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap;';
+            var modeLabel = document.createElement('span');
+            modeLabel.textContent = t('searchMode') + ': ';
+            modeLabel.style.cssText = 'color: #888; font-size: 12px;';
+            modeRow.appendChild(modeLabel);
+            var modes = ['normal', 'wildcard', 'regex'];
+            var modeLabels = { 'normal': t('normalMode'), 'wildcard': t('wildcardMode'), 'regex': t('regexMode') };
+            modes.forEach(function(mode) {
+                var btn = document.createElement('button');
+                btn.textContent = modeLabels[mode];
+                btn.setAttribute('data-mode', mode);
+                btn.style.cssText =
+                    'padding: 4px 10px;' +
+                    'font-size: 12px;' +
+                    'border: 1px solid #4a4a4a;' +
+                    'border-radius: 4px;' +
+                    'background: #2a2a2a;' +
+                    'color: #888;' +
+                    'cursor: pointer;' +
+                    'transition: all 0.2s;';
+                var updateModeButtons = function() {
+                    var current = config.getSearchMode();
+                    modeRow.querySelectorAll('button').forEach(function(b) {
+                        if (b.getAttribute('data-mode') === current) {
+                            b.style.background = '#4a9eff';
+                            b.style.color = '#fff';
+                            b.style.borderColor = '#4a9eff';
+                        } else {
+                            b.style.background = '#2a2a2a';
+                            b.style.color = '#888';
+                            b.style.borderColor = '#4a4a4a';
+                        }
+                    });
+                };
+                btn.addEventListener('click', function() {
+                    config.setSearchMode(mode);
+                    updateModeButtons();
+                    var keyword = input.value;
+                    searchResults = searchNodes(keyword);
+                    currentResultIndex = searchResults.length > 0 ? 0 : -1;
+                    updateResultsList();
+                });
+                modeRow.appendChild(btn);
+            });
+            modeRow.querySelectorAll('button').forEach(function(btn, idx) {
+                if (btn.getAttribute('data-mode') === config.getSearchMode()) {
+                    btn.style.background = '#4a9eff';
+                    btn.style.color = '#fff';
+                    btn.style.borderColor = '#4a9eff';
+                }
+            });
+            inputContainer.appendChild(modeRow);
             dialog.appendChild(inputContainer);
 
             
@@ -985,10 +1102,25 @@ app.registerExtension({
             resultsContainer.style.cssText =
                 'flex: 1;' +
                 'overflow-y: auto;' +
+                'overflow-x: hidden;' +
                 'max-height: 400px;' +
+                'min-height: 150px;' +
                 'border: 1px solid #4a4a4a;' +
                 'border-radius: 4px;' +
-                'background: #1a1a1a;';
+                'background: #1a1a1a;' +
+                'scrollbar-width: thin;' +
+                'scrollbar-color: #5a5a5a #2a2a2a;';
+            resultsContainer.style.webkitOverflowScrolling = 'touch';
+            if (!document.getElementById('mechababy-search-scrollbar-style')) {
+                var scrollbarStyle = document.createElement('style');
+                scrollbarStyle.id = 'mechababy-search-scrollbar-style';
+                scrollbarStyle.textContent =
+                    '#search-results-container::-webkit-scrollbar { width: 10px; }' +
+                    '#search-results-container::-webkit-scrollbar-track { background: #2a2a2a; border-radius: 4px; }' +
+                    '#search-results-container::-webkit-scrollbar-thumb { background: #5a5a5a; border-radius: 5px; }' +
+                    '#search-results-container::-webkit-scrollbar-thumb:hover { background: #6a6a6a; }';
+                document.head.appendChild(scrollbarStyle);
+            }
             dialog.appendChild(resultsContainer);
 
             
