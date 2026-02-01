@@ -104,7 +104,13 @@ var portTeleportI18n = {
         autoShow: "自动显示",
         autoShowDesc: "开启后，点击节点时自动显示跳转列表（仅在钉住状态下可用）",
         autoShowEnabled: "自动显示已开启",
-        autoShowDisabled: "自动显示已关闭"
+        autoShowDisabled: "自动显示已关闭",
+        copyWidgetValue: "复制控件值",
+        copyCurrentRow: "复制当前行",
+        copiedToClipboard: "已复制到剪贴板",
+        copyMenuTitle: "选择要复制的值",
+        copyShortcut: "复制控件值快捷键",
+        setCopyShortcut: "设置复制快捷键"
     },
     "en-US": {
         teleportToConnected: "Teleport to Connected Nodes",
@@ -159,7 +165,13 @@ var portTeleportI18n = {
         autoShow: "Auto Show",
         autoShowDesc: "When enabled, clicking a node will automatically show the jump list (only available when pinned)",
         autoShowEnabled: "Auto show enabled",
-        autoShowDisabled: "Auto show disabled"
+        autoShowDisabled: "Auto show disabled",
+        copyWidgetValue: "Copy Widget Value",
+        copyCurrentRow: "Copy Current Row",
+        copiedToClipboard: "Copied to clipboard",
+        copyMenuTitle: "Select value to copy",
+        copyShortcut: "Copy Widget Shortcut",
+        setCopyShortcut: "Set Copy Shortcut"
     },
     "ja-JP": {
         teleportToConnected: "接続ノードにテレポート",
@@ -205,7 +217,13 @@ var portTeleportI18n = {
         autoShow: "自動表示",
         autoShowDesc: "有効にすると、ノードをクリックしたときに自動的にジャンプリストを表示します（固定時のみ利用可能）",
         autoShowEnabled: "自動表示が有効になりました",
-        autoShowDisabled: "自動表示が無効になりました"
+        autoShowDisabled: "自動表示が無効になりました",
+        copyWidgetValue: "ウィジェット値をコピー",
+        copyCurrentRow: "現在の行をコピー",
+        copiedToClipboard: "クリップボードにコピーしました",
+        copyMenuTitle: "コピーする値を選択",
+        copyShortcut: "ウィジェットコピーショートカット",
+        setCopyShortcut: "コピーショートカットを設定"
     },
     "ko-KR": {
         teleportToConnected: "연결된 노드로 텔레포트",
@@ -251,7 +269,13 @@ var portTeleportI18n = {
         autoShow: "자동 표시",
         autoShowDesc: "활성화하면 노드를 클릭할 때 자동으로 점프 목록을 표시합니다（고정 상태에서만 사용 가능）",
         autoShowEnabled: "자동 표시가 활성화되었습니다",
-        autoShowDisabled: "자동 표시가 비활성화되었습니다"
+        autoShowDisabled: "자동 표시가 비활성화되었습니다",
+        copyWidgetValue: "위젯 값 복사",
+        copyCurrentRow: "현재 행 복사",
+        copiedToClipboard: "클립보드에 복사됨",
+        copyMenuTitle: "복사할 값 선택",
+        copyShortcut: "위젯 복사 단축키",
+        setCopyShortcut: "복사 단축키 설정"
     },
     "ru-RU": {
         teleportToConnected: "Телепорт к подключенным узлам",
@@ -297,7 +321,13 @@ var portTeleportI18n = {
         autoShow: "Автопоказ",
         autoShowDesc: "При включении, клик по узлу будет автоматически показывать список переходов (доступно только при закреплении)",
         autoShowEnabled: "Автопоказ включен",
-        autoShowDisabled: "Автопоказ выключен"
+        autoShowDisabled: "Автопоказ выключен",
+        copyWidgetValue: "Копировать значение виджета",
+        copyCurrentRow: "Копировать текущую строку",
+        copiedToClipboard: "Скопировано в буфер обмена",
+        copyMenuTitle: "Выберите значение для копирования",
+        copyShortcut: "Горячая клавиша копирования",
+        setCopyShortcut: "Установить горячую клавишу копирования"
     }
 };
 
@@ -823,7 +853,7 @@ app.registerExtension({
                                             portTeleportT("pressKey") +
                                             "</div>" +
                                             '<div style="text-align: right;">' +
-                                            '<button style="margin-right: 10px; padding: 5px 15px;" onclick="this.parentElement.parentElement.remove()">' +
+                                            '<button class="mechababy-key-cancel" style="margin-right: 10px; padding: 5px 15px;">' +
                                             portTeleportT("cancel") +
                                             "</button>" +
                                             "</div>";
@@ -835,17 +865,22 @@ app.registerExtension({
                                             if (key && key !== "Escape") {
                                                 portTeleportConfig.setBackKey(key);
                                                 showToast(portTeleportT("keySaved") + ": " + key);
-                                                document.body.removeChild(dialog);
                                                 window.removeEventListener("keydown", keyHandler, true);
+                                                if (dialog.parentNode) dialog.parentNode.removeChild(dialog);
                                                 keySettingDialogOpen = false;
                                             } else if (key === "Escape") {
-                                                document.body.removeChild(dialog);
                                                 window.removeEventListener("keydown", keyHandler, true);
+                                                if (dialog.parentNode) dialog.parentNode.removeChild(dialog);
                                                 keySettingDialogOpen = false;
                                             }
                                         };
                                         window.addEventListener("keydown", keyHandler, true);
                                         document.body.appendChild(dialog);
+                                        dialog.querySelector(".mechababy-key-cancel").addEventListener("click", function () {
+                                            window.removeEventListener("keydown", keyHandler, true);
+                                            if (dialog.parentNode) dialog.parentNode.removeChild(dialog);
+                                            keySettingDialogOpen = false;
+                                        });
                                     }
                                 },
                                 {
@@ -861,7 +896,7 @@ app.registerExtension({
                                             portTeleportT("pressKey") +
                                             "</div>" +
                                             '<div style="text-align: right;">' +
-                                            '<button style="margin-right: 10px; padding: 5px 15px;" onclick="this.parentElement.parentElement.remove()">' +
+                                            '<button class="mechababy-key-cancel" style="margin-right: 10px; padding: 5px 15px;">' +
                                             portTeleportT("cancel") +
                                             "</button>" +
                                             "</div>";
@@ -873,17 +908,22 @@ app.registerExtension({
                                             if (key && key !== "Escape") {
                                                 portTeleportConfig.setForwardKey(key);
                                                 showToast(portTeleportT("keySaved") + ": " + key);
-                                                document.body.removeChild(dialog);
                                                 window.removeEventListener("keydown", keyHandler, true);
+                                                if (dialog.parentNode) dialog.parentNode.removeChild(dialog);
                                                 keySettingDialogOpen = false;
                                             } else if (key === "Escape") {
-                                                document.body.removeChild(dialog);
                                                 window.removeEventListener("keydown", keyHandler, true);
+                                                if (dialog.parentNode) dialog.parentNode.removeChild(dialog);
                                                 keySettingDialogOpen = false;
                                             }
                                         };
                                         window.addEventListener("keydown", keyHandler, true);
                                         document.body.appendChild(dialog);
+                                        dialog.querySelector(".mechababy-key-cancel").addEventListener("click", function () {
+                                            window.removeEventListener("keydown", keyHandler, true);
+                                            if (dialog.parentNode) dialog.parentNode.removeChild(dialog);
+                                            keySettingDialogOpen = false;
+                                        });
                                     }
                                 },
                                 null,
@@ -897,7 +937,7 @@ app.registerExtension({
                                             '<div style="margin-bottom: 10px; color: #999; font-size: 12px;">' + portTeleportT("currentShortcut") + '<span style="color: #4a9eff;">' + getQuickJumpKey() + '</span></div>' +
                                             '<div style="margin-bottom: 15px; color: #999; font-size: 12px;">' + portTeleportT("pressKeyToSet") + '</div>' +
                                             '<div style="text-align: right;">' +
-                                            '<button style="margin-right: 10px; padding: 5px 15px; background: #4a4a4a; border: none; border-radius: 4px; color: #fff; cursor: pointer;" onclick="this.parentElement.parentElement.remove()">' + portTeleportT("cancel") + '</button>' +
+                                            '<button class="mechababy-key-cancel" style="margin-right: 10px; padding: 5px 15px; background: #4a4a4a; border: none; border-radius: 4px; color: #fff; cursor: pointer;">' + portTeleportT("cancel") + '</button>' +
                                             "</div>";
                                         var keyHandler = function (e) {
                                             e.preventDefault();
@@ -910,15 +950,23 @@ app.registerExtension({
                                                 if (e.shiftKey) newKey = "Shift+" + newKey;
                                                 setQuickJumpKey(newKey);
                                                 showToast(portTeleportT("shortcutSaved") + newKey);
-                                                document.body.removeChild(dialog);
                                                 window.removeEventListener("keydown", keyHandler, true);
+                                                if (dialog.parentNode) dialog.parentNode.removeChild(dialog);
+                                                keySettingDialogOpen = false;
                                             } else if (key === "Escape") {
-                                                document.body.removeChild(dialog);
                                                 window.removeEventListener("keydown", keyHandler, true);
+                                                if (dialog.parentNode) dialog.parentNode.removeChild(dialog);
+                                                keySettingDialogOpen = false;
                                             }
                                         };
+                                        keySettingDialogOpen = true;
                                         window.addEventListener("keydown", keyHandler, true);
                                         document.body.appendChild(dialog);
+                                        dialog.querySelector(".mechababy-key-cancel").addEventListener("click", function () {
+                                            window.removeEventListener("keydown", keyHandler, true);
+                                            if (dialog.parentNode) dialog.parentNode.removeChild(dialog);
+                                            keySettingDialogOpen = false;
+                                        });
                                     }
                                 },
                                 {
@@ -940,6 +988,57 @@ app.registerExtension({
                                 { content: portTeleportT("autoJumpDesc"), disabled: true },
                                 { content: portTeleportT("blockMenuDesc"), disabled: true },
                                 { content: portTeleportT("keyboardNavDesc"), disabled: true }
+                            ]
+                        }
+                    },
+                    null,
+                    {
+                        content: "📋 " + portTeleportT("copyWidgetValue"),
+                        has_submenu: true,
+                        submenu: {
+                            options: [
+                                {
+                                    content: portTeleportT("copyShortcut") + ": " + getCopyShortcutKey(),
+                                    callback: function () {
+                                        var dialog = document.createElement("div");
+                                        dialog.style.cssText = "position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--comfy-menu-bg); padding: 20px; border: 2px solid var(--border-color); border-radius: 8px; z-index: 10000; min-width: 350px;";
+                                        dialog.innerHTML =
+                                            '<div style="margin-bottom: 15px; font-size: 16px; font-weight: bold;">' + portTeleportT("setCopyShortcut") + '</div>' +
+                                            '<div style="margin-bottom: 10px; color: #999; font-size: 12px;">' + portTeleportT("currentShortcut") + '<span style="color: #4a9eff;">' + getCopyShortcutKey() + '</span></div>' +
+                                            '<div style="margin-bottom: 15px; color: #999; font-size: 12px;">' + portTeleportT("pressKeyToSet") + '</div>' +
+                                            '<div style="text-align: right;">' +
+                                            '<button class="mechababy-key-cancel" style="margin-right: 10px; padding: 5px 15px; background: #4a4a4a; border: none; border-radius: 4px; color: #fff; cursor: pointer;">' + portTeleportT("cancel") + '</button>' +
+                                            "</div>";
+                                        keySettingDialogOpen = true;
+                                        var keyHandler = function (e) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            var key = e.key || e.code;
+                                            if (key && key !== "Escape") {
+                                                var newKey = key;
+                                                if (e.ctrlKey || e.metaKey) newKey = "Ctrl+" + key;
+                                                if (e.altKey) newKey = "Alt+" + newKey;
+                                                if (e.shiftKey) newKey = "Shift+" + newKey;
+                                                setCopyShortcutKey(newKey);
+                                                showToast(portTeleportT("shortcutSaved") + newKey);
+                                                window.removeEventListener("keydown", keyHandler, true);
+                                                if (dialog.parentNode) dialog.parentNode.removeChild(dialog);
+                                                keySettingDialogOpen = false;
+                                            } else if (key === "Escape") {
+                                                window.removeEventListener("keydown", keyHandler, true);
+                                                if (dialog.parentNode) dialog.parentNode.removeChild(dialog);
+                                                keySettingDialogOpen = false;
+                                            }
+                                        };
+                                        window.addEventListener("keydown", keyHandler, true);
+                                        document.body.appendChild(dialog);
+                                        dialog.querySelector(".mechababy-key-cancel").addEventListener("click", function () {
+                                            window.removeEventListener("keydown", keyHandler, true);
+                                            if (dialog.parentNode) dialog.parentNode.removeChild(dialog);
+                                            keySettingDialogOpen = false;
+                                        });
+                                    }
+                                }
                             ]
                         }
                     }
@@ -1037,6 +1136,151 @@ app.registerExtension({
             }
                 return relatedNodes;
             }
+
+        function getCopyableWidgets(node) {
+            var list = [];
+            if (!node || !node.widgets || !Array.isArray(node.widgets)) return list;
+            var copyableTypes = ["combo", "string", "text", "number", "seed"];
+            try {
+                node.widgets.forEach(function (w, idx) {
+                    if (!w) return;
+                    var type = (w.type || "").toLowerCase();
+                    if (copyableTypes.indexOf(type) < 0) return;
+                    var raw = (node.widgets_values && node.widgets_values[idx] !== undefined)
+                        ? node.widgets_values[idx]
+                        : (w.value !== undefined ? w.value : "");
+                    var valStr;
+                    if (type === "combo" && w.options && Array.isArray(w.options) && typeof raw === "number" && raw >= 0 && raw < w.options.length) {
+                        valStr = String(w.options[raw] || "").trim();
+                    } else {
+                        valStr = String(raw || "").trim();
+                    }
+                    if (!valStr) return;
+                    var name = w.name || ("Widget " + idx);
+                    list.push({ index: idx, name: name, value: valStr, widget: w });
+                });
+            } catch (e) {
+                console.warn("[MechaBaby PortTeleport] 获取可复制控件失败:", e);
+            }
+            return list;
+        }
+
+        function getWidgetAtPosition(node, relX, relY) {
+            if (!node || !node.widgets || !node.widgets.length) return null;
+            var slotHeight = (typeof LiteGraph !== "undefined" && LiteGraph.NODE_SLOT_HEIGHT) || 24;
+            var widgetHeight = (typeof LiteGraph !== "undefined" && LiteGraph.NODE_WIDGET_HEIGHT) || 20;
+            var inputRows = Math.max(node.inputs ? node.inputs.length : 0, node.outputs ? node.outputs.length : 0);
+            var baseY = slotHeight * inputRows + 6;
+            var nodeW = (node.size && node.size[0]) ? node.size[0] : 200;
+            try {
+                for (var i = 0; i < node.widgets.length; i++) {
+                    var w = node.widgets[i];
+                    if (!w) continue;
+                    var y = (w.y != null && w.y !== undefined) ? w.y : ((w.last_y != null && w.last_y !== undefined) ? w.last_y : baseY);
+                    var h = widgetHeight + 4;
+                    if (w.computeSize && typeof w.computeSize === "function") {
+                        try {
+                            var sz = w.computeSize(nodeW);
+                            if (sz && (Array.isArray(sz) ? sz[1] : sz.height)) h = (Array.isArray(sz) ? sz[1] : sz.height) + 4;
+                        } catch (e) {}
+                    }
+                    if (relY >= y && relY < y + h && relX >= 0 && relX <= nodeW) {
+                        return { index: i, widget: w };
+                    }
+                    baseY = y + h;
+                }
+            } catch (e) {
+                console.warn("[MechaBaby PortTeleport] 获取控件位置失败:", e);
+            }
+            return null;
+        }
+
+        function copyToClipboardAndToast(text) {
+            if (!text) return false;
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(function () {
+                        if (typeof showToast === "function") showToast(portTeleportT("copiedToClipboard"));
+                        else if (app && app.extensionManager && app.extensionManager.toast) {
+                            app.extensionManager.toast.add({ severity: "info", summary: "MechaBaby", detail: portTeleportT("copiedToClipboard"), life: 2000 });
+                        }
+                    }).catch(function () { /* fallback below */ });
+                    return true;
+                }
+                var ta = document.createElement("textarea");
+                ta.value = text;
+                ta.style.position = "fixed";
+                ta.style.opacity = "0";
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand("copy");
+                document.body.removeChild(ta);
+                if (typeof showToast === "function") showToast(portTeleportT("copiedToClipboard"));
+                else if (app && app.extensionManager && app.extensionManager.toast) {
+                    app.extensionManager.toast.add({ severity: "info", summary: "MechaBaby", detail: portTeleportT("copiedToClipboard"), life: 2000 });
+                }
+                return true;
+            } catch (e) {
+                console.warn("[MechaBaby PortTeleport] 复制失败:", e);
+                return false;
+            }
+        }
+
+        var lastContextMenuClient = { x: 0, y: 0 };
+        if (typeof document !== "undefined") {
+            document.addEventListener("contextmenu", function (e) {
+                lastContextMenuClient.x = e.clientX;
+                lastContextMenuClient.y = e.clientY;
+            }, true);
+        }
+
+        function getWidgetIndexAtCursor(node) {
+            if (!node || !app || !app.canvas) return null;
+            var nw = app.canvas.node_widgets && app.canvas.node_widgets[node.id];
+            if (nw && nw.length > 0) {
+                try {
+                    var menus = document.querySelectorAll(".litecontextmenu, .litemenubar-panel, [class*='contextmenu'], [class*='ContextMenu']");
+                    var origStyles = [];
+                    for (var m = 0; m < menus.length; m++) {
+                        if (menus[m].offsetParent !== null) {
+                            origStyles.push({ el: menus[m], vis: menus[m].style.visibility });
+                            menus[m].style.visibility = "hidden";
+                        }
+                    }
+                    var els = document.elementsFromPoint ? document.elementsFromPoint(lastContextMenuClient.x, lastContextMenuClient.y) : [document.elementFromPoint(lastContextMenuClient.x, lastContextMenuClient.y)];
+                    for (var r = 0; r < origStyles.length; r++) {
+                        origStyles[r].el.style.visibility = origStyles[r].vis || "";
+                    }
+                    function getContainer(w) {
+                        if (!w) return null;
+                        if (w.nodeType === 1) return w;
+                        if (w.$el) return w.$el;
+                        if (w.el) return w.el;
+                        return w;
+                    }
+                    for (var ei = 0; els && ei < els.length; ei++) {
+                        var target = els[ei];
+                        if (!target) continue;
+                        var cn = target.className ? (typeof target.className === "string" ? target.className : "") : "";
+                        if (cn.indexOf("litecontextmenu") >= 0 || cn.indexOf("litemenu") >= 0 || cn.indexOf("contextmenu") >= 0) continue;
+                        for (var i = 0; i < nw.length; i++) {
+                            var c = getContainer(nw[i]);
+                            if (c && (c === target || (c.contains && c.contains(target)))) return i;
+                        }
+                    }
+                } catch (e) {}
+            }
+            var canvas = app.canvas;
+            if (canvas && canvas.graph_mouse && canvas.graph_mouse.length >= 2 && node.pos) {
+                var nodeX = Array.isArray(node.pos) ? node.pos[0] : (node.pos.x || 0);
+                var nodeY = Array.isArray(node.pos) ? node.pos[1] : (node.pos.y || 0);
+                var relX = canvas.graph_mouse[0] - nodeX;
+                var relY = canvas.graph_mouse[1] - nodeY;
+                var hit = getWidgetAtPosition(node, relX, relY);
+                if (hit) return hit.index;
+            }
+            return null;
+        }
 
         var portTeleportState = {
             hitRadius: 60,
@@ -1204,6 +1448,34 @@ app.registerExtension({
                         })()
                     }
                 });
+            }
+
+            var copyableWidgets = getCopyableWidgets(node);
+            if (copyableWidgets.length > 0) {
+                var widgetIdxAtCursor = getWidgetIndexAtCursor(node);
+                var copyOptions = [];
+                var hit = widgetIdxAtCursor != null ? copyableWidgets.filter(function (c) { return c.index === widgetIdxAtCursor; })[0] : null;
+                if (hit) {
+                    copyOptions.push({
+                        content: "📋 " + portTeleportT("copyCurrentRow") + ": " + hit.name + " = " + (hit.value.length > 30 ? hit.value.substring(0, 27) + "..." : hit.value),
+                        callback: function () { copyToClipboardAndToast(hit.value); }
+                    });
+                    if (copyableWidgets.length > 1) copyOptions.push(null);
+                }
+                copyableWidgets.forEach(function (c) {
+                    if (hit && c.index === hit.index) return;
+                    copyOptions.push({
+                        content: (c.name + " = " + (c.value.length > 40 ? c.value.substring(0, 37) + "..." : c.value)),
+                        callback: (function (v) { return function () { copyToClipboardAndToast(v); }; })(c.value)
+                    });
+                });
+                if (copyOptions.length > 0) {
+                    options.push(null, {
+                        content: "📋 " + portTeleportT("copyWidgetValue"),
+                        has_submenu: true,
+                        submenu: { options: copyOptions }
+                    });
+                }
             }
             return options;
         };
@@ -1688,6 +1960,21 @@ app.registerExtension({
             try {
                 localStorage.setItem("mechababy.portTeleport.quickJumpKey", key);
                 quickJumpKey = key;
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+        
+        var copyShortcutKey = "F4";
+        function getCopyShortcutKey() {
+            var saved = localStorage.getItem("mechababy.portTeleport.copyShortcutKey");
+            return saved || copyShortcutKey;
+        }
+        function setCopyShortcutKey(key) {
+            try {
+                localStorage.setItem("mechababy.portTeleport.copyShortcutKey", key);
+                copyShortcutKey = key;
                 return true;
             } catch (e) {
                 return false;
@@ -2929,10 +3216,119 @@ app.registerExtension({
             
         }
         
+        var copyWidgetMenu = null;
+        function closeCopyWidgetMenu() {
+            if (copyWidgetMenu && copyWidgetMenu.parentNode) {
+                copyWidgetMenu.parentNode.removeChild(copyWidgetMenu);
+                copyWidgetMenu = null;
+            }
+            if (window._copyMenuClickHandler) {
+                document.removeEventListener("mousedown", window._copyMenuClickHandler);
+                window._copyMenuClickHandler = null;
+            }
+            if (window._copyMenuEscHandler) {
+                document.removeEventListener("keydown", window._copyMenuEscHandler);
+                window._copyMenuEscHandler = null;
+            }
+        }
+        function showCopyWidgetMenu(node) {
+            closeCopyWidgetMenu();
+            var widgets = getCopyableWidgets(node);
+            if (!widgets || widgets.length === 0) return;
+            copyWidgetMenu = document.createElement("div");
+            copyWidgetMenu.className = "mechababy-copy-widget-menu";
+            copyWidgetMenu.style.cssText =
+                "position: fixed; z-index: 100000; min-width: 280px; max-width: 400px; max-height: 70vh; overflow-y: auto;" +
+                "background: var(--comfy-menu-bg, #2a2a2a); border: 1px solid var(--border-color, #444);" +
+                "border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);" +
+                "font-size: 12px; font-family: inherit;";
+            var header = document.createElement("div");
+            header.style.cssText = "padding: 10px 14px; border-bottom: 1px solid var(--border-color, #444); font-weight: bold; color: #fff;";
+            header.textContent = portTeleportT("copyMenuTitle");
+            copyWidgetMenu.appendChild(header);
+            var list = document.createElement("div");
+            list.style.cssText = "padding: 4px 0; max-height: 50vh; overflow-y: auto;";
+            widgets.forEach(function (c, idx) {
+                var item = document.createElement("div");
+                item.className = "mechababy-copy-widget-item";
+                var isLast = idx === widgets.length - 1;
+                item.style.cssText =
+                    "padding: 10px 14px; cursor: pointer; transition: background 0.15s;" +
+                    (isLast ? "" : "border-bottom: 1px solid var(--border-color, #333);");
+                var nameDiv = document.createElement("div");
+                nameDiv.style.cssText = "color: #4a9eff; font-size: 11px; margin-bottom: 2px;";
+                nameDiv.textContent = c.name;
+                var valDiv = document.createElement("div");
+                valDiv.style.cssText = "color: #ccc; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;";
+                valDiv.textContent = c.value.length > 60 ? c.value.substring(0, 57) + "..." : c.value;
+                item.appendChild(nameDiv);
+                item.appendChild(valDiv);
+                item.addEventListener("mouseenter", function () { this.style.background = "var(--comfy-menu-bg-hover, rgba(255,255,255,0.1))"; });
+                item.addEventListener("mouseleave", function () { this.style.background = "transparent"; });
+                item.addEventListener("click", function (e) {
+                    e.stopPropagation();
+                    copyToClipboardAndToast(c.value);
+                    closeCopyWidgetMenu();
+                });
+                list.appendChild(item);
+            });
+            copyWidgetMenu.appendChild(list);
+            var rect = app && app.canvas && app.canvas.canvas ? app.canvas.canvas.getBoundingClientRect() : null;
+            var cx = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+            var cy = rect ? rect.top + 100 : 150;
+            copyWidgetMenu.style.left = Math.max(20, Math.min(cx - 150, window.innerWidth - 320)) + "px";
+            copyWidgetMenu.style.top = cy + "px";
+            document.body.appendChild(copyWidgetMenu);
+            window._copyMenuClickHandler = function (e) {
+                if (copyWidgetMenu && !copyWidgetMenu.contains(e.target)) {
+                    closeCopyWidgetMenu();
+                }
+            };
+            window._copyMenuEscHandler = function (e) {
+                if (e.key === "Escape") closeCopyWidgetMenu();
+            };
+            setTimeout(function () {
+                document.addEventListener("mousedown", window._copyMenuClickHandler);
+                document.addEventListener("keydown", window._copyMenuEscHandler);
+            }, 10);
+        }
+
         function setupQuickJumpShortcut() {
             var currentKey = getQuickJumpKey();
             
             document.addEventListener("keydown", function(e) {
+                var activeElement = document.activeElement;
+                if (activeElement && (
+                    activeElement.tagName === "INPUT" ||
+                    activeElement.tagName === "TEXTAREA" ||
+                    activeElement.isContentEditable
+                )) {
+                    return;
+                }
+                var copyKey = getCopyShortcutKey();
+                var copyKeyMatch = false;
+                if (copyKey === "F4" && e.key === "F4") {
+                    copyKeyMatch = !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey;
+                } else if (copyKey && copyKey !== "F4") {
+                    var parts = copyKey.split("+");
+                    var ctrlOk = (parts.indexOf("Ctrl") >= 0) ? (e.ctrlKey || e.metaKey) : (!e.ctrlKey && !e.metaKey);
+                    var altOk = (parts.indexOf("Alt") >= 0) ? e.altKey : !e.altKey;
+                    var shiftOk = (parts.indexOf("Shift") >= 0) ? e.shiftKey : !e.shiftKey;
+                    var keyPart = parts[parts.length - 1];
+                    if (ctrlOk && altOk && shiftOk && e.key === keyPart) copyKeyMatch = true;
+                }
+                if (copyKeyMatch) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (app && app.canvas && app.canvas.selected_nodes) {
+                        var selNodes = app.canvas.selected_nodes;
+                        var ids = Object.keys(selNodes);
+                        if (ids.length > 0 && selNodes[ids[0]]) {
+                            showCopyWidgetMenu(selNodes[ids[0]]);
+                        }
+                    }
+                    return;
+                }
                 var keyMatch = false;
                 if (currentKey === "F1" && e.key === "F1") {
                     keyMatch = true;
@@ -2948,15 +3344,6 @@ app.registerExtension({
                 }
                 
                 if (keyMatch) {
-                    var activeElement = document.activeElement;
-                    if (activeElement && (
-                        activeElement.tagName === "INPUT" ||
-                        activeElement.tagName === "TEXTAREA" ||
-                        activeElement.isContentEditable
-                    )) {
-                        return;
-                    }
-                    
                     e.preventDefault();
                     e.stopPropagation();
                     

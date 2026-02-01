@@ -19,6 +19,7 @@ Enhance ComfyUI workflow by providing powerful node search, attribute search, an
 - 🎯 **Smart Matching**: Supports searching node titles, types, node IDs, widget names, widget values, property names, and property values
 - ✨ **Golden Flash Highlight**: Target node flashes with golden color after jumping for better visibility
 - 🔄 **Set/Get Node Support**: Supports jumping between `easy getNode`/`easy setNode` (comfyui-easy-use) and `GetNode`/`SetNode` (ComfyUI-KJNodes)
+- 📋 **Copy Widget Value**: Right-click on a node and choose "Copy Widget Value", or **select a node and press F4** to open the copy menu; select a value to copy to clipboard
 - ⚙️ **Rich Configuration**: Extensive settings for auto jump, menu blocking, navigation keys, and menu scaling
 
 ## Installation
@@ -72,6 +73,7 @@ Access port teleport settings through:
    - **History Navigation**: Enable/disable mouse side button and keyboard history navigation
    - **Customize Navigation Keys**: Set custom keys for back/forward navigation
    - **Quick Jump Shortcut**: Set custom shortcut for quick jump menu (default: F1)
+   - **Copy Widget Shortcut**: Customize shortcut in "Copy Widget Value" submenu (default: F4)
    - **Menu Scale**: Adjust quick jump menu scale (50%, 75%, 100%, 125%, 150%, or auto-scale)
 
 ### Pin Window and Auto Show
@@ -110,6 +112,12 @@ Access port teleport settings through:
 MIT License
 
 ## Changelog
+
+### v1.6.2 (2026-02-01)
+- Added copy widget value: right-click "Copy Widget Value" or press F4 on selected node to copy model/LoRA names
+- Added configurable copy shortcut in MechaBaby extension settings (default: F4)
+- Fixed shortcut dialog: Cancel button now properly removes key listener
+- UI: Removed extra bottom border and redundant shortcut hint in copy menu title
 
 ### v1.6.1 (2026-01-31)
 - Added support for ComfyUI-KJNodes `GetNode` and `SetNode` jumping

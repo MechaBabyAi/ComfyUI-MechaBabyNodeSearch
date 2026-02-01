@@ -1,7 +1,7 @@
 [project]
 name = "ComfyUI-MechaBabyNodeSearch"
 description = "Enhance ComfyUI workflow with powerful node search, attribute search, and port navigation (Ctrl+F, F1)."
-version = "1.6.1"
+version = "1.6.2"
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "MechaBaby" }]
